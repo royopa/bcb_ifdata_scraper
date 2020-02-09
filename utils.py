@@ -41,28 +41,28 @@ def formata_nome_relatorio(rel):
     rel = rel.replace(
         'segmentação', 'segmentacao')
     rel = rel.replace(
-        'carteira de crédito ativa Pessoa Física - modalidade e prazo de vencimento',
+        'carteira de crédito ativa pessoa física - modalidade e prazo de vencimento'.lower(),
         'carteira_credito_ativa_pf_modalidade_prazo_vencimento')
     rel = rel.replace(
-        'carteira de crédito ativa Pessoa Jurídica - modalidade e prazo de vencimento',
+        'carteira de crédito ativa pessoa jurídica - modalidade e prazo de vencimento'.lower(),
         'carteira_credito_ativa_pj_modalidade_prazo_vencimento')
     rel = rel.replace(
-        'carteira de crédito ativa Pessoa Jurídica -  por atividade econômica (cnae)',
+        'carteira de crédito ativa pessoa jurídica -  por atividade econômica (cnae)'.lower(),
         'carteira_credito_ativa_pj_atividade_economica_cnae')
     rel = rel.replace(
-        'carteira de crédito ativa Pessoa Jurídica - por porte do tomador',
+        'carteira de crédito ativa pessoa jurídica - por porte do tomador'.lower(),
         'carteira_credito_ativa_pj_porte_tomador')
     rel = rel.replace(
-        'carteira de crédito ativa - quantidade de clientes e de operações',
+        'carteira de crédito ativa - quantidade de clientes e de operações'.lower(),
         'carteira_credito_ativa_pj_quantidade_clientes_operacoes')
     rel = rel.replace(
-        'carteira de crédito ativa - por nível de risco da operação',
+        'carteira de crédito ativa - por nível de risco da operação'.lower(),
         'carteira_credito_ativa_pj_nivel_risco')
     rel = rel.replace(
-        'carteira de crédito ativa - por indexador',
+        'carteira de crédito ativa - por indexador'.lower(),
         'carteira_credito_ativa_por_indexador')
     rel = rel.replace(
-        'Movimentação de Câmbio no Trimestre',
+        'movimentação de câmbio no trimestre'.lower(),
         'movimentacao_cambio_trimestre')
 
     return rel
