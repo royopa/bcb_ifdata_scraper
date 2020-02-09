@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from utils import main
 
+
 if __name__ == "__main__":
     folder_name = 'conglomerados_financeiros'
     id_tipo_if = 1
