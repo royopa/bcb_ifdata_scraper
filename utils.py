@@ -142,3 +142,6 @@ def main(folder_name, id_tipo_if, tipos_relatorios, datas_base):
                 processa_relatorio(browser, id_tipo_if, download_folder_path)
             except:
                 continue
+
+    browser.close()
+    browser.quit()
