@@ -10,11 +10,14 @@ from selenium.webdriver.support.ui import WebDriverWait
 
 
 def processa_relatorio(browser, id_tipo_if, download_folder_path):
-    ano = browser.execute_script('return document.getElementById("btnDataBase").innerText')
-    ano = ano.replace("/","")
+    data_base = browser.execute_script('return document.getElementById("btnDataBase").innerText')
+    data_base = data_base.replace("/","")
+    trimestre = data_base[0:2]
+    ano = data_base[2:]
+
     rel = browser.execute_script('return document.getElementById("btnRelatorio").innerText')
     rel = formata_nome_relatorio(rel)
-    print('Aguarda o carregamento do relatório {} - {}'.format(rel, ano))
+    print('Aguarda o carregamento do relatório {} - {}/{}'.format(rel, trimestre, ano))
     countdown(5)
 
     wait = WebDriverWait(browser, 120)
@@ -26,7 +29,7 @@ def processa_relatorio(browser, id_tipo_if, download_folder_path):
 
     shutil.move(
         os.path.join(os.sep,'home','rodrigo','Downloads','dados.csv'),
-        os.path.join(download_folder_path, '{}_{}_{}.csv'.format(ano, id_tipo_if, rel))
+        os.path.join(download_folder_path, '{}_{}_{}_{}.csv'.format(ano, trimestre, id_tipo_if, rel))
     )
 
 
