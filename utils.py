@@ -27,9 +27,17 @@ def processa_relatorio(browser, id_tipo_if, download_folder_path):
     print('Baixa arquivo dados.csv')
     countdown(2)
 
+    path_downloaded_file = os.sep,'home','rodrigo','Downloads','dados.csv'
+    path_new_file = download_folder_path, '{}_{}_{}_{}.csv'.format(ano, trimestre, id_tipo_if, rel)
+
+    if os.path.exists(path_new_file):
+        print('Arquivo já baixado, pulando', path_new_file)
+        os.remove(path_downloaded_file)
+        return False
+
     shutil.move(
-        os.path.join(os.sep,'home','rodrigo','Downloads','dados.csv'),
-        os.path.join(download_folder_path, '{}_{}_{}_{}.csv'.format(ano, trimestre, id_tipo_if, rel))
+        os.path.join(path_downloaded_file),
+        os.path.join(path_new_file)
     )
 
 
