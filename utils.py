@@ -17,7 +17,18 @@ def processa_relatorio(browser, id_tipo_if, download_folder_path):
 
     rel = browser.execute_script('return document.getElementById("btnRelatorio").innerText')
     rel = formata_nome_relatorio(rel)
-    print('Aguarda o carregamento do relatório {} - {}/{}'.format(rel, trimestre, ano))
+    
+    path_new_file = os.path.join(download_folder_path, '{}_{}_{}_{}.csv'.format(ano, trimestre, id_tipo_if, rel))
+    path_downloaded_file = os.path.join(os.sep,'home','rodrigo','Downloads','dados.csv')
+
+    if os.path.exists(path_new_file):
+        print('Arquivo já baixado, pulando')
+        print(path_new_file)
+        os.remove(path_downloaded_file)
+        return False
+
+    print('Aguarda o carregamento do relatório')
+    print('{} - {}/{}'.format(rel, trimestre, ano))
     countdown(5)
 
     wait = WebDriverWait(browser, 120)
@@ -26,18 +37,10 @@ def processa_relatorio(browser, id_tipo_if, download_folder_path):
 
     print('Baixa arquivo dados.csv')
     countdown(2)
-
-    path_downloaded_file = os.sep,'home','rodrigo','Downloads','dados.csv'
-    path_new_file = download_folder_path, '{}_{}_{}_{}.csv'.format(ano, trimestre, id_tipo_if, rel)
-
-    if os.path.exists(path_new_file):
-        print('Arquivo já baixado, pulando', path_new_file)
-        os.remove(path_downloaded_file)
-        return False
-
+   
     shutil.move(
-        os.path.join(path_downloaded_file),
-        os.path.join(path_new_file)
+        path_downloaded_file,
+        path_new_file
     )
 
 
@@ -113,7 +116,7 @@ def get_browser_ifdata():
     print('Acessa a página e aguarda o carregamento do combo de datas base')
     url = 'https://www3.bcb.gov.br/ifdata/index.html'
     browser.get(url)
-    countdown(60)
+    countdown(25)
 
     botao = browser.find_element_by_id('btnDataBase')
     botao.click()
@@ -129,20 +132,26 @@ def get_browser_ifdata():
     return browser
 
 
-def main(folder_name, id_tipo_if, tipos_relatorios, datas_base):
+def main(folder_name, id_tipo_if, tipos_relatorios, datas_base, tipo_instituicao):
     download_folder_path = prepare_download_folder(folder_name)
     browser = get_browser_ifdata()
 
     # baixa todas as bases de dados (de 0 a 78 em 08/02/2020)
     browser.implicitly_wait(10)
     for id_data_base in datas_base:
-        print('Seleciona data-base', id_data_base)
         browser.execute_script('selectDataBase(' + str(id_data_base) + ')')
         countdown(1)
+        data_base = browser.execute_script('return document.getElementById("btnDataBase").innerText')
+        print('Seleciona data-base', data_base)
 
-        print('Seleciona tipo instituição')
-        browser.execute_script('selectTipoInst(' + str(id_tipo_if) + ')')
-        countdown(1)
+        try:
+            browser.find_element_by_id('btnTipoInst').click()
+            elem = browser.find_element_by_link_text(tipo_instituicao)
+            elem.click()
+        except:
+            print('Tipo de instituição não encontrada na data base {}, pulando...'.format(data_base))
+            print("\n")
+            continue
 
         # itens do relatório
         for tipo_relatorio in tipos_relatorios:
@@ -152,6 +161,9 @@ def main(folder_name, id_tipo_if, tipos_relatorios, datas_base):
                 elem.click()
                 processa_relatorio(browser, id_tipo_if, download_folder_path)
             except:
+                print('Relatório: {}'.format(tipo_relatorio))
+                print('Tipo de relatório não encontrado, pulando...')
+                print("\n")
                 continue
 
     browser.close()
