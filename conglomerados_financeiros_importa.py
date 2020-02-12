@@ -13,7 +13,7 @@ from dotenv import load_dotenv
 from dotenv import find_dotenv
 load_dotenv(find_dotenv())
 
-engine = create_engine(os.environ.get('SQLALCHEMY_DATABASE_URI'), echo=True)
+engine = create_engine(os.environ.get('SQLALCHEMY_DATABASE_URI'), echo=False)
 
 
 # In[2]:
@@ -67,16 +67,15 @@ df = df[df['co_if'].notnull()]
 df['co_if'] = df['co_if'].astype(int)
 df['tp_controle'] = df['tp_controle'].astype(int)
 
-print(df.head())
-print(df.dtypes)
+
 
 # salva os registros no banco de dados
 df.to_sql('{}_import'.format(nome_relatorio), con=engine, if_exists='replace')
 
 # executa para ver os resultados retornados que foram importados
 df_banco = engine.execute("SELECT * FROM {}_import".format(nome_relatorio)).fetchall()
+print(nome_relatorio)
 print(len(df_banco))
-
 print('Registros importados com sucesso.')
 
 
@@ -135,8 +134,7 @@ df = df[df['co_if'].notnull()]
 df['co_if'] = df['co_if'].astype(int)
 df['tp_controle'] = df['tp_controle'].astype(int)
 
-print(df.head())
-print(df.dtypes)
+
 print(df.tail())
 
 # salva os registros no banco de dados
@@ -144,8 +142,8 @@ df.to_sql('{}_import'.format(nome_relatorio), con=engine, if_exists='replace')
 
 # executa para ver os resultados retornados que foram importados
 df_banco = engine.execute("SELECT * FROM {}_import".format(nome_relatorio)).fetchall()
+print(nome_relatorio)
 print(len(df_banco))
-
 print('Registros importados com sucesso.')
 
 
@@ -206,16 +204,15 @@ df = df[df['co_if'].notnull()]
 df['co_if'] = df['co_if'].astype(int)
 df['tp_controle'] = df['tp_controle'].astype(int)
 
-print(df.head())
-print(df.dtypes)
+
 
 # salva os registros no banco de dados
 df.to_sql('{}_import'.format(nome_relatorio), con=engine, if_exists='replace')
 
 # executa para ver os resultados retornados que foram importados
 df_banco = engine.execute("SELECT * FROM {}_import".format(nome_relatorio)).fetchall()
+print(nome_relatorio)
 print(len(df_banco))
-
 print('Registros importados com sucesso.')
 
 
@@ -288,15 +285,14 @@ df = df[df['co_if'].notnull()]
 df['co_if'] = df['co_if'].astype(int)
 df['tp_controle'] = df['tp_controle'].astype(int)
 
-print(df.head())
-print(df.dtypes)
+
 
 # salva os registros no banco de dados
 df.to_sql('{}_import'.format(nome_relatorio), con=engine, if_exists='replace')
 
 # executa para ver os resultados retornados que foram importados
 df_banco = engine.execute("SELECT * FROM {}_import".format(nome_relatorio)).fetchall()
+print(nome_relatorio)
 print(len(df_banco))
-
 print('Registros importados com sucesso.')
 
