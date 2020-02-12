@@ -1,0 +1,4 @@
+python captura_if_data_instituicoes_operacoes_cambio.py
+python conglomerados_prudenciais_importa.py
+python conglomerados_financeiros_importa.py
+python instituicoes_operacoes_cambio_importa.py
