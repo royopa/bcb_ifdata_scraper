@@ -7,6 +7,7 @@ from pathlib import Path
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
+import pandas as pd
 
 
 def processa_relatorio(browser, id_tipo_if, download_folder_path):
@@ -102,6 +103,21 @@ def get_webdriver():
     return browser
 
 
+# monta os arquivos em um único arquivo
+def merge_arquivos(lista_paths, file_name):
+    dfs = []
+    for file_path in sorted(lista_paths):
+        df = pd.read_csv(file_path, sep=";")
+        dfs.append(df)
+
+    df = pd.concat(dfs, axis=0, ignore_index=True)
+    print(df.shape)
+    print(df.columns)
+
+    df.to_csv(os.path.join('bases', file_name))
+    return True
+
+
 def prepare_download_folder(folder_name):
     download_folder_path = os.path.join('downloads', folder_name)
 
@@ -109,6 +125,15 @@ def prepare_download_folder(folder_name):
         Path(download_folder_path).mkdir(parents=True, exist_ok=True)
 
     return download_folder_path
+
+
+def prepare_bases_folder():
+    folder_path = os.path.join('bases')
+
+    if not os.path.exists(folder_path):
+        Path(folder_path).mkdir(parents=True, exist_ok=True)
+
+    return folder_path
 
 
 def get_browser_ifdata():

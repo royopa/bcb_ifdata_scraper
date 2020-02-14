@@ -1,9 +1,3 @@
-
-# coding: utf-8
-
-# In[ ]:
-
-
 import os
 import shutil
 import pandas as pd
@@ -15,19 +9,16 @@ load_dotenv(find_dotenv())
 
 engine = create_engine(os.environ.get('SQLALCHEMY_DATABASE_URI'), echo=False)
 
-
-# In[2]:
-
-
-nome_relatorio = 'inst_individuais_resumo'
+nome_relatorio = 'prud_resumo'
 file_name = '{}.csv'.format(nome_relatorio)
-df = pd.read_csv(os.path.join('bases', file_name), low_memory=False)
+df = pd.read_csv(os.path.join('bases', file_name))
 df.columns
 df.head()
 
 # remove unnamed columns
 df.drop('Unnamed: 0', axis=1, inplace=True)
-df.drop('Unnamed: 19', axis=1, inplace=True)
+df.drop('Unnamed: 20', axis=1, inplace=True)
+df.drop('Unnamed: 17', axis=1, inplace=True)
 
 a_renomear = {
     'Instituição financeira':'nome_if',
@@ -50,10 +41,6 @@ a_renomear = {
     'Índice de Imobilização':'ic_imobilizacao',
     'Número de Agências':'nu_agencias',
     'Número de Postos de Atendimento':'nu_postos_atendimento',
-    'Conglomerado':'conglomerado',
-    'Conglomerado Financeiro':'conglomerado_financeiro',
-    'Conglomerado Prudencial':'conglomerado_prudencial',
-    'TI':'ti'
 }
 
 # renomeia as colunas
@@ -66,8 +53,6 @@ df = df[df['co_if'].notnull()]
 df['co_if'] = df['co_if'].astype(int)
 df['tp_controle'] = df['tp_controle'].astype(int)
 
-
-
 # salva os registros no banco de dados
 df.to_sql('{}_import'.format(nome_relatorio), con=engine, if_exists='replace')
 
@@ -78,20 +63,13 @@ print(len(df_banco))
 print('Registros importados com sucesso.')
 
 
-# In[3]:
-
-
-nome_relatorio = 'inst_individuais_ativo'
+nome_relatorio = 'prud_ativo'
 file_name = '{}.csv'.format(nome_relatorio)
 df = pd.read_csv(os.path.join('bases', file_name), low_memory=False)
-print(df.columns)
 
 # remove unnamed columns
 df.drop('Unnamed: 0', axis=1, inplace=True)
-df.drop('Unnamed: 15', axis=1, inplace=True)
-df.drop('Unnamed: 20', axis=1, inplace=True)
-df.drop('Unnamed: 21', axis=1, inplace=True)
-df.drop('Unnamed: 28', axis=1, inplace=True)
+df.drop('Unnamed: 26', axis=1, inplace=True)
 
 a_renomear = {
     'Instituição financeira':'nome_if',
@@ -119,11 +97,7 @@ a_renomear = {
     'Permanente Ajustado (h)':'permanente_ajustado',
     'Ativo Total Ajustado (i) = (a) + (b) + (c) + (d) + (e) + (f) + (g) + (h)':'ativo_total_ajustado',
     'Credores por Antecipação de Valor Residual (j)':'credores_antecipacao_valor_residual',
-    'Ativo Total (k) = (i) - (j)':'ativo_total',
-    'Conglomerado':'conglomerado',
-    'Conglomerado Financeiro':'conglomerado_financeiro',
-    'Conglomerado Prudencial':'conglomerado_prudencial',
-    'TI':'ti'
+    'Ativo Total (k) = (i) - (j)':'ativo_total'
 }
 
 # renomeia as colunas
@@ -136,32 +110,23 @@ df = df[df['co_if'].notnull()]
 df['co_if'] = df['co_if'].astype(int)
 df['tp_controle'] = df['tp_controle'].astype(int)
 
-
-print(df.tail())
-
 # salva os registros no banco de dados
 df.to_sql('{}_import'.format(nome_relatorio), con=engine, if_exists='replace')
 
 # executa para ver os resultados retornados que foram importados
 df_banco = engine.execute("SELECT * FROM {}_import".format(nome_relatorio)).fetchall()
 print(nome_relatorio)
-len(df_banco)
+print(len(df_banco))
 print('Registros importados com sucesso.')
 
 
-# In[4]:
-
-
-nome_relatorio = 'inst_individuais_passivo'
+nome_relatorio = 'prud_passivo'
 file_name = '{}.csv'.format(nome_relatorio)
 df = pd.read_csv(os.path.join('bases', file_name), low_memory=False)
 
 # remove unnamed columns
 df.drop('Unnamed: 0', axis=1, inplace=True)
-df.drop('Unnamed: 24', axis=1, inplace=True)
-df.drop('Unnamed: 25', axis=1, inplace=True)
-df.drop('Unnamed: 32', axis=1, inplace=True)
-
+df.drop('Unnamed: 30', axis=1, inplace=True)
 
 a_renomear = {
     'Instituição financeira':'nome_if',
@@ -193,11 +158,7 @@ a_renomear = {
     'Passivo Circulante e Exigível a Longo Prazo (h) = (e) + (f) + (g)':'passivo_circulante_exigivel_longo_prazo',
     'Resultados de Exercícios Futuros (i)':'resultado_exercicios_futuros',
     'Patrimônio Líquido (j)':'patrimonio_liquido',
-    'Passivo Total (k) = (h) + (i) + (j)':'passivo_total',
-    'Conglomerado':'conglomerado',
-    'Conglomerado Financeiro':'conglomerado_financeiro',
-    'Conglomerado Prudencial':'conglomerado_prudencial',
-    'TI':'ti'    
+    'Passivo Total (k) = (h) + (i) + (j)':'passivo_total'
 }
 
 # renomeia as colunas
@@ -210,7 +171,64 @@ df = df[df['co_if'].notnull()]
 df['co_if'] = df['co_if'].astype(int)
 df['tp_controle'] = df['tp_controle'].astype(int)
 
+# salva os registros no banco de dados
+df.to_sql('{}_import'.format(nome_relatorio), con=engine, if_exists='replace')
 
+# executa para ver os resultados retornados que foram importados
+df_banco = engine.execute("SELECT * FROM {}_import".format(nome_relatorio)).fetchall()
+print(nome_relatorio)
+print(len(df_banco))
+print('Registros importados com sucesso.')
+
+
+nome_relatorio = 'prud_informacoes_capital'
+file_name = '{}.csv'.format(nome_relatorio)
+df = pd.read_csv(os.path.join('bases', file_name), low_memory=False)
+
+# remove unnamed columns
+df.drop('Unnamed: 0', axis=1, inplace=True)
+df.drop('Unnamed: 28', axis=1, inplace=True)
+
+a_renomear = {
+    'Instituição financeira':'nome_if',
+    'Código':'co_if',
+    'TCB':'tp_consolidado_bancario',
+    'SR':'segmento',
+    'TD':'tp_consolidacao',
+    'TC':'tp_controle',
+    'Cidade':'cidade',
+    'UF':'uf',
+    'Data':'dt_base',
+    'Patrimônio de Referência para Comparação com o RWA':'capital_principal',
+    'Unnamed: 10':'capital_complementar',
+    'Unnamed: 11':'patrimonio_referencia_nivel_1',
+    'Unnamed: 12':'capital_nivel_2',
+    'Unnamed: 13':'patrimonio_referencia',
+    'Ativos Ponderados pelo Risco (RWA)':'rwa_risco_credito',
+    'Unnamed: 15':'rwa_cam',
+    'Unnamed: 16':'rwa_com',
+    'Unnamed: 17':'rwa_jur',
+    'Unnamed: 18':'rwa_acs',
+    'Unnamed: 19':'rwa_risco_mercado',
+    'Unnamed: 20':'rwa_risco_operacional',
+    'Unnamed: 21':'rwa_ativos_ponderados_risco',
+    'Exposição Total (j)':'exposicao_total',
+    'Índice de Capital Principal (k) = (a) / (i)':'ic_capital_principal',
+    'Índice de Capital Nível I (l) = (c) / (i)':'ic_capital_nivel_1',
+    'Índice de Basileia (m) = (e) / (i)':'ic_basileia',
+    'Razão de Alavancagem (n) = (c) / (j)':'razao_alavancagem',
+    'Índice de Imobilização (o)':'ic_imobilizacao',
+}
+
+# renomeia as colunas
+df = df.rename(columns=a_renomear)
+
+# remove informações que são consolidadas
+df = df[df['co_if'].notnull()]
+
+# convert just columns "a" and "b"
+df['co_if'] = df['co_if'].astype(int)
+df['tp_controle'] = df['tp_controle'].astype(int)
 
 # salva os registros no banco de dados
 df.to_sql('{}_import'.format(nome_relatorio), con=engine, if_exists='replace')
@@ -218,24 +236,17 @@ df.to_sql('{}_import'.format(nome_relatorio), con=engine, if_exists='replace')
 # executa para ver os resultados retornados que foram importados
 df_banco = engine.execute("SELECT * FROM {}_import".format(nome_relatorio)).fetchall()
 print(nome_relatorio)
-len(df_banco)
+print(len(df_banco))
 print('Registros importados com sucesso.')
 
 
-# In[ ]:
-
-
-nome_relatorio = 'inst_individuais_demonstracao_resultado'
+nome_relatorio = 'prud_demonstracao_resultado'
 file_name = '{}.csv'.format(nome_relatorio)
 df = pd.read_csv(os.path.join('bases', file_name), low_memory=False)
 
 # remove unnamed columns
 df.drop('Unnamed: 0', axis=1, inplace=True)
-df.drop('Unnamed: 23', axis=1, inplace=True)
-df.drop('Unnamed: 32', axis=1, inplace=True)
-df.drop('Unnamed: 33', axis=1, inplace=True)
-df.drop('Unnamed: 41', axis=1, inplace=True)
-
+df.drop('Unnamed: 39', axis=1, inplace=True)
 
 a_renomear = {
     'Instituição financeira':'nome_if',
@@ -249,7 +260,7 @@ a_renomear = {
     'Data':'dt_base',
     'Resultado de Intermediação Financeira':'rendas_op_credito',
     'Unnamed: 10':'rendas_op_arrendamento_mercantil',
-    'Unnamed: 11':'Rendas de Operações com TVM (a3)',
+    'Unnamed: 11':'rendas_op_tvm',
     'Unnamed: 12':'rendas_op_derivativos',
     'Unnamed: 13':'resultado_op_cambio',
     'Unnamed: 14':'rendas_aplicacoes_compulsorias',
@@ -277,11 +288,53 @@ a_renomear = {
     'Participação nos Lucros (i)':'participacao_lucros',
     'Lucro Líquido (j) = (g) + (h) + (i)':'lucro_liquido',
     'Juros Sobre Capital Próprio (k)':'juros_sobre_capital_proprio',
-    'Juros Sobre Capital Social de Cooperativas (k)':'juros_sobre_capital_cooperativas',
-    'Conglomerado':'conglomerado',
-    'Conglomerado Financeiro':'conglomerado_financeiro',
-    'Conglomerado Prudencial':'conglomerado_prudencial',
-    'TI':'ti'
+    'Juros Sobre Capital Social de Cooperativas (k)':'juros_sobre_capital_cooperativas'
+}
+
+# renomeia as colunas
+df = df.rename(columns=a_renomear)
+
+# remove informações que são consolidadas
+df = df[df['co_if'].notnull()]
+
+# convert just columns "a" and "b"
+df['co_if'] = df['co_if'].astype(int)
+df['tp_controle'] = df['tp_controle'].astype(int)
+
+# salva os registros no banco de dados
+df.to_sql('{}_import'.format(nome_relatorio), con=engine, if_exists='replace')
+
+# executa para ver os resultados retornados que foram importados
+df_banco = engine.execute("SELECT * FROM {}_import".format(nome_relatorio)).fetchall()
+print(nome_relatorio)
+print(len(df_banco))
+print('Registros importados com sucesso.')
+
+
+nome_relatorio = 'prud_segmentacao'
+file_name = '{}.csv'.format(nome_relatorio)
+df = pd.read_csv(os.path.join('bases', file_name), low_memory=False)
+
+# remove unnamed columns
+df.drop('Unnamed: 0', axis=1, inplace=True)
+df.drop('Unnamed: 15', axis=1, inplace=True)
+
+a_renomear = {
+    'Instituição financeira':'nome_if',
+    'Código':'co_if',
+    'TCB':'tp_consolidado_bancario',
+    'SR':'segmento',
+    'TD':'tp_consolidacao',
+    'TC':'tp_controle',
+    'Cidade':'cidade',
+    'UF':'uf',
+    'Data':'dt_base',
+    'Instituição Sujeita à Apuração da Exposição Total':'ic_apuracao_exposicao_total',
+    'Instituição Sujeita à Apuração do Patrimônio de Referência':'ic_apuracao_patrimonio_referencia',
+    'Instituição Utiliza Metodologia Simplificada':'ic_metodologia_simplificada',
+    'Exposição Total ou Ativo Total (R$ mil)':'exposicao_total',
+    'Total de Ativos Consolidados no Exterior (US$ mil)':'total_ativos_consolidado_exterior',
+    'Data da Última Alteração de Segmento':'dt_ultima_alteracao_segmento'
 }
 
 # renomeia as colunas
@@ -295,13 +348,12 @@ df['co_if'] = df['co_if'].astype(int)
 df['tp_controle'] = df['tp_controle'].astype(int)
 
 
-
 # salva os registros no banco de dados
 df.to_sql('{}_import'.format(nome_relatorio), con=engine, if_exists='replace')
 
 # executa para ver os resultados retornados que foram importados
 df_banco = engine.execute("SELECT * FROM {}_import".format(nome_relatorio)).fetchall()
 print(nome_relatorio)
-len(df_banco)
+print(len(df_banco))
 print('Registros importados com sucesso.')
 

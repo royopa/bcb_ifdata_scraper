@@ -1,9 +1,3 @@
-
-# coding: utf-8
-
-# In[17]:
-
-
 import os
 import shutil
 import pandas as pd
@@ -14,10 +8,6 @@ from dotenv import find_dotenv
 load_dotenv(find_dotenv())
 
 engine = create_engine(os.environ.get('SQLALCHEMY_DATABASE_URI'), echo=False)
-
-
-# In[18]:
-
 
 nome_relatorio = 'inst_op_cambio_mov_trimestre'
 file_name = '{}.csv'.format(nome_relatorio)
@@ -69,9 +59,6 @@ df = df.rename(columns=a_renomear)
 
 # remove informações que são consolidadas
 df = df[df['co_if'].notnull()]
-
-
-
 
 # salva os registros no banco de dados
 df.to_sql('{}_import'.format(nome_relatorio), con=engine, if_exists='replace')
