@@ -57,8 +57,6 @@ df = df[df['co_if'].notnull()]
 df['co_if'] = df['co_if'].astype(int)
 df['tp_controle'] = df['tp_controle'].astype(int)
 
-
-
 # salva os registros no banco de dados
 df.to_sql('{}_import'.format(nome_relatorio), con=engine, if_exists='replace')
 
@@ -122,7 +120,6 @@ df = df[df['co_if'].notnull()]
 # convert just columns "a" and "b"
 df['co_if'] = df['co_if'].astype(int)
 df['tp_controle'] = df['tp_controle'].astype(int)
-
 
 # salva os registros no banco de dados
 df.to_sql('{}_import'.format(nome_relatorio), con=engine, if_exists='replace')
@@ -229,7 +226,7 @@ a_renomear = {
     'Data':'dt_base',
     'Resultado de Intermediação Financeira':'rendas_op_credito',
     'Unnamed: 10':'rendas_op_arrendamento_mercantil',
-    'Unnamed: 11':'Rendas de Operações com TVM (a3)',
+    'Unnamed: 11':'rendas_op_tvm',
     'Unnamed: 12':'rendas_op_derivativos',
     'Unnamed: 13':'resultado_op_cambio',
     'Unnamed: 14':'rendas_aplicacoes_compulsorias',

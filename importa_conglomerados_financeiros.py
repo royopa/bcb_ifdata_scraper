@@ -2,6 +2,7 @@ import os
 import shutil
 import pandas as pd
 from sqlalchemy import create_engine
+import numpy as np
 
 from dotenv import load_dotenv
 from dotenv import find_dotenv
@@ -12,9 +13,7 @@ engine = create_engine(os.environ.get('SQLALCHEMY_DATABASE_URI'), echo=False)
 
 nome_relatorio = 'congl_financeiros_resumo'
 file_name = '{}.csv'.format(nome_relatorio)
-df = pd.read_csv(os.path.join('bases', file_name), low_memory=False)
-df.columns
-df.head()
+df = pd.read_csv(os.path.join('bases', file_name), low_memory=False, thousands='.', decimal=',')
 
 # remove unnamed columns
 df.drop('Unnamed: 0', axis=1, inplace=True)
@@ -58,7 +57,11 @@ df = df[df['co_if'].notnull()]
 df['co_if'] = df['co_if'].astype(int)
 df['tp_controle'] = df['tp_controle'].astype(int)
 
-
+# convert fields to numeric
+for nome_campo in df.columns:
+    df[nome_campo] = df[nome_campo].str.replace('NI', np.nan)
+    df[nome_campo] = df[nome_campo].str.replace('.', '')
+    df[nome_campo] = pd.to_numeric(df[nome_campo], errors='ignore', downcast='float')
 
 # salva os registros no banco de dados
 df.to_sql('{}_import'.format(nome_relatorio), con=engine, if_exists='replace')
@@ -72,7 +75,7 @@ print('Registros importados com sucesso.')
 
 nome_relatorio = 'congl_financeiros_ativo'
 file_name = '{}.csv'.format(nome_relatorio)
-df = pd.read_csv(os.path.join('bases', file_name), low_memory=False)
+df = pd.read_csv(os.path.join('bases', file_name), low_memory=False, thousands='.', decimal=',')
 
 # remove unnamed columns
 df.drop('Unnamed: 0', axis=1, inplace=True)
@@ -121,6 +124,11 @@ df = df[df['co_if'].notnull()]
 df['co_if'] = df['co_if'].astype(int)
 df['tp_controle'] = df['tp_controle'].astype(int)
 
+# convert fields to numeric
+for nome_campo in df.columns:
+    df[nome_campo] = df[nome_campo].str.replace('NI', np.nan)
+    df[nome_campo] = df[nome_campo].str.replace('.', '')
+    df[nome_campo] = pd.to_numeric(df[nome_campo], errors='ignore', downcast='float')
 
 # salva os registros no banco de dados
 df.to_sql('{}_import'.format(nome_relatorio), con=engine, if_exists='replace')
@@ -137,7 +145,7 @@ print('Registros importados com sucesso.')
 
 nome_relatorio = 'congl_financeiros_passivo'
 file_name = '{}.csv'.format(nome_relatorio)
-df = pd.read_csv(os.path.join('bases', file_name), low_memory=False)
+df = pd.read_csv(os.path.join('bases', file_name), low_memory=False, thousands='.', decimal=',')
 
 # remove unnamed columns
 df.drop('Unnamed: 0', axis=1, inplace=True)
@@ -189,7 +197,11 @@ df = df[df['co_if'].notnull()]
 df['co_if'] = df['co_if'].astype(int)
 df['tp_controle'] = df['tp_controle'].astype(int)
 
-
+# convert fields to numeric
+for nome_campo in df.columns:
+    df[nome_campo] = df[nome_campo].str.replace('NI', np.nan)
+    df[nome_campo] = df[nome_campo].str.replace('.', '')
+    df[nome_campo] = pd.to_numeric(df[nome_campo], errors='ignore', downcast='float')
 
 # salva os registros no banco de dados
 df.to_sql('{}_import'.format(nome_relatorio), con=engine, if_exists='replace')
@@ -203,7 +215,7 @@ print('Registros importados com sucesso.')
 
 nome_relatorio = 'congl_financeiros_demonstracao_resultado'
 file_name = '{}.csv'.format(nome_relatorio)
-df = pd.read_csv(os.path.join('bases', file_name), low_memory=False)
+df = pd.read_csv(os.path.join('bases', file_name), low_memory=False, thousands='.', decimal=',')
 
 # remove unnamed columns
 df.drop('Unnamed: 0', axis=1, inplace=True)
@@ -267,7 +279,11 @@ df = df[df['co_if'].notnull()]
 df['co_if'] = df['co_if'].astype(int)
 df['tp_controle'] = df['tp_controle'].astype(int)
 
-
+# convert fields to numeric
+for nome_campo in df.columns:
+    df[nome_campo] = df[nome_campo].str.replace('NI', np.nan)
+    df[nome_campo] = df[nome_campo].str.replace('.', '')
+    df[nome_campo] = pd.to_numeric(df[nome_campo], errors='ignore', downcast='float')
 
 # salva os registros no banco de dados
 df.to_sql('{}_import'.format(nome_relatorio), con=engine, if_exists='replace')
