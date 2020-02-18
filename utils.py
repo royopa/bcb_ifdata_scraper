@@ -9,6 +9,13 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 import pandas as pd
 
+from sqlalchemy import create_engine
+
+from dotenv import load_dotenv
+from dotenv import find_dotenv
+load_dotenv(find_dotenv())
+
+
 
 def processa_relatorio(browser, id_tipo_if, download_folder_path):
     data_base = browser.execute_script('return document.getElementById("btnDataBase").innerText')
@@ -114,7 +121,7 @@ def merge_arquivos(lista_paths, file_name):
     print(df.shape)
     print(df.columns)
 
-    df.to_csv(os.path.join('bases', file_name))
+    df.to_csv(os.path.join('bases', file_name), sep=";")
     return True
 
 
@@ -193,3 +200,84 @@ def main(folder_name, id_tipo_if, tipos_relatorios, datas_base, tipo_instituicao
 
     browser.close()
     browser.quit()
+
+
+def processa_import(nome_relatorio, a_excluir, a_renomear):
+    engine = create_engine(os.environ.get('SQLALCHEMY_DATABASE_URI'), echo=False)
+
+    file_name = '{}.csv'.format(nome_relatorio)
+    
+    print('Processando {}'.format(file_name))
+    df = pd.read_csv(
+        os.path.join('bases', file_name),
+        low_memory=False,
+        sep=";"
+    )
+
+    print(df.dtypes)
+
+    # renomeia as colunas
+    df = df.rename(columns=a_renomear)
+
+    # remove informações que são consolidadas
+    df = df[df['co_if'].notnull()]
+
+    # convert just columns "a" and "b"
+    df['co_if'] = df['co_if'].astype(int)
+    df['tp_controle'] = df['tp_controle'].astype(int)
+
+    # remove unnamed columns
+    for nome_coluna in sorted(a_excluir):
+        print('Removendo coluna {}'.format(nome_coluna))
+        df.drop(nome_coluna, axis=1, inplace=True)
+
+    # remove unnamed columns
+    lista_ignorar = [
+        'nome_if',
+        'co_if',  
+        'tp_consolidado_bancario',
+        'segmento',
+        'tp_consolidacao',
+        'tp_controle',
+        'cidade', 
+        'uf',
+        'dt_base',
+        'conglomerado',
+        'dt_ultima_alteracao_segmento',
+        'conglomerado',
+        'conglomerado_financeiro',
+        'conglomerado_prudencial',
+    ]
+
+    for nome_coluna in a_renomear:
+        coluna = a_renomear.get(nome_coluna)
+        if coluna not in lista_ignorar:
+            print(coluna)
+            df[coluna] = df[coluna].astype(str)
+            df[coluna] = df[coluna].str.replace('.', '')
+            df[coluna] = df[coluna].str.replace(',', '.')
+            df[coluna] = df[coluna].str.replace('Não', '0')
+            df[coluna] = df[coluna].str.replace('Sim', '1')
+            df[coluna] = df[coluna].str.replace('NI', '0')
+            df[coluna] = df[coluna].str.replace('NA', '0')
+            df[coluna] = df[coluna].str.replace('%', '')
+            df[coluna] = df[coluna].str.replace('*', '0')
+
+            df[coluna] = df[coluna].astype(float)
+            #df[coluna] = df[coluna].apply(pd.to_numeric, errors='coerce')
+
+    print(df.dtypes)
+
+    # salva os registros no banco de dados
+    df.to_sql('{}_import'.format(nome_relatorio), con=engine, if_exists='replace')
+    #df.to_csv('{}_import.csv'.format(nome_relatorio), sep=";")
+
+    return True
+
+    # executa para ver os resultados retornados que foram importados
+    df_banco = engine.execute("SELECT * FROM {}_import".format(nome_relatorio)).fetchall()
+    print(nome_relatorio)
+    print(len(df_banco))
+    print('Registros importados com sucesso.')
+
+    return True

@@ -2,23 +2,20 @@ import os
 import shutil
 import pandas as pd
 from sqlalchemy import create_engine
+from utils import processa_import
 
 from dotenv import load_dotenv
 from dotenv import find_dotenv
 load_dotenv(find_dotenv())
 
-engine = create_engine(os.environ.get('SQLALCHEMY_DATABASE_URI'), echo=False)
 
 nome_relatorio = 'inst_op_cambio_mov_trimestre'
-file_name = '{}.csv'.format(nome_relatorio)
-df = pd.read_csv(os.path.join('bases', file_name))
-df.columns
-df.head()
 
-# remove unnamed columns
-df.drop('Unnamed: 0', axis=1, inplace=True)
-df.drop('Unnamed: 31', axis=1, inplace=True)
-df.drop('SR', axis=1, inplace=True)
+a_excluir = {
+    'Unnamed: 0',
+    'Unnamed: 31',
+    'SR'
+}
 
 a_renomear = {
     'Instituição financeira':'nome_if',
@@ -53,19 +50,4 @@ a_renomear = {
     'Total':'total_nu_operacoes',
     'Unnamed: 30':'total_valor',
 }
-
-# renomeia as colunas
-df = df.rename(columns=a_renomear)
-
-# remove informações que são consolidadas
-df = df[df['co_if'].notnull()]
-
-# salva os registros no banco de dados
-df.to_sql('{}_import'.format(nome_relatorio), con=engine, if_exists='replace')
-
-# executa para ver os resultados retornados que foram importados
-df_banco = engine.execute("SELECT * FROM {}_import".format(nome_relatorio)).fetchall()
-print(nome_relatorio)
-print(len(df_banco))
-print('Registros importados com sucesso.')
-
+processa_import(nome_relatorio, a_excluir, a_renomear)
