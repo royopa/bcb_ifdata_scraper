@@ -7,14 +7,15 @@ from pathlib import Path
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
+import traceback
 import pandas as pd
+pd.set_option('display.max_columns', 200)
 
 from sqlalchemy import create_engine
 
 from dotenv import load_dotenv
 from dotenv import find_dotenv
 load_dotenv(find_dotenv())
-
 
 
 def processa_relatorio(browser, id_tipo_if, download_folder_path):
@@ -106,47 +107,63 @@ def get_webdriver():
 
     prefs = {"download.default_directory" : os.path.join(str(os.path.dirname(os.path.abspath(__file__))), 'downloads')}
     options.add_experimental_option("prefs",prefs)
-    
-    browser = webdriver.Chrome(options=options)
-        
+
+    try:
+        browser = webdriver.Chrome(options=options)
+    except Exception as e:
+        tb = traceback.format_exc()
+        print(e, "\n")
+        print(tb)
+        return False
+
     return browser
 
 
 # monta os arquivos em um único arquivo
 def merge_arquivos(lista_paths, file_name):
+    print('='*80)
+    print('Consolidando arquivos - {}'.format(file_name))
+    print('='*80)
+    
     dfs = []
     for file_path in sorted(lista_paths):
         df = pd.read_csv(file_path, sep=";")
         dfs.append(df)
 
     df = pd.concat(dfs, axis=0, ignore_index=True)
-    print(df.shape)
-    print(df.columns)
 
     df.to_csv(os.path.join('bases', file_name), sep=";")
     return True
 
 
 def prepare_download_folder(folder_name):
-    download_folder_path = os.path.join('downloads', folder_name)
-
-    if not os.path.exists(download_folder_path):
-        Path(download_folder_path).mkdir(parents=True, exist_ok=True)
-
-    return download_folder_path
+    folder_path = os.path.join('downloads', folder_name)
+    return prepare_folder(folder_path)
 
 
 def prepare_bases_folder():
     folder_path = os.path.join('bases')
+    return prepare_folder(folder_path)
+   
 
+def prepare_folder(folder_path):
     if not os.path.exists(folder_path):
         Path(folder_path).mkdir(parents=True, exist_ok=True)
 
     return folder_path
 
 
+def prepare_bases_import_folder():
+    folder_path = os.path.join('bases_import')
+    return prepare_folder(folder_path)
+
+
 def get_browser_ifdata():
     browser = get_webdriver()
+    
+    if browser is False:
+        return False
+    
     print('Acessa a página e aguarda o carregamento do combo de datas base')
     url = 'https://www3.bcb.gov.br/ifdata/index.html'
     browser.get(url)
@@ -170,6 +187,9 @@ def main(folder_name, id_tipo_if, tipos_relatorios, datas_base, tipo_instituicao
     download_folder_path = prepare_download_folder(folder_name)
     browser = get_browser_ifdata()
 
+    if browser is False:
+        return False
+    
     # baixa todas as bases de dados (de 0 a 78 em 08/02/2020)
     browser.implicitly_wait(10)
     for id_data_base in datas_base:
@@ -205,35 +225,47 @@ def main(folder_name, id_tipo_if, tipos_relatorios, datas_base, tipo_instituicao
 
 
 def processa_import(nome_relatorio, a_excluir, a_renomear):
+    print('='*80)
+    print('Importando {} para a base'.format(nome_relatorio))
+    print('='*80)
+
     engine = create_engine(os.environ.get('SQLALCHEMY_DATABASE_URI'), echo=False)
 
     file_name = '{}.csv'.format(nome_relatorio)
     
-    print('Processando {}'.format(file_name))
+    print('Lendo o csv {}'.format(file_name))
     df = pd.read_csv(
         os.path.join('bases', file_name),
         low_memory=False,
         sep=";"
     )
 
-    print(df.dtypes)
-
+    print('O dataframe tem {} registros'.format(len(df)))    
+    
     # renomeia as colunas
+    print('Renomeando colunas')
     df = df.rename(columns=a_renomear)
 
     # remove informações que são consolidadas
+    print('Removendo registros inválidos')
     df = df[df['co_if'].notnull()]
+
+    # remove points from co_if
+    df['co_if'] = df['co_if'].astype(str)
+    df['co_if'] = df['co_if'].str.replace('.', '')
 
     # convert just columns "a" and "b"
     df['co_if'] = df['co_if'].astype(int)
+    df['tp_controle'] = df['tp_controle'].fillna(0)
     df['tp_controle'] = df['tp_controle'].astype(int)
-
+   
     # remove unnamed columns
+    print('Removendo colunas não utilizadas')
     for nome_coluna in sorted(a_excluir):
-        print('Removendo coluna {}'.format(nome_coluna))
         df.drop(nome_coluna, axis=1, inplace=True)
 
-    # remove unnamed columns
+    # ignora as colunas que já possuem o campo do tipo string
+    # e que não devem tem seu tipo alteradas
     lista_ignorar = [
         'nome_if',
         'co_if',  
@@ -251,10 +283,10 @@ def processa_import(nome_relatorio, a_excluir, a_renomear):
         'conglomerado_prudencial',
     ]
 
+    print('Alterando tipos das colunas e substituindo valores, caso necessário')
     for nome_coluna in a_renomear:
         coluna = a_renomear.get(nome_coluna)
         if coluna not in lista_ignorar:
-            print(coluna)
             df[coluna] = df[coluna].astype(str)
             df[coluna] = df[coluna].str.replace('.', '')
             df[coluna] = df[coluna].str.replace(',', '.')
@@ -268,18 +300,30 @@ def processa_import(nome_relatorio, a_excluir, a_renomear):
             df[coluna] = df[coluna].astype(float)
             #df[coluna] = df[coluna].apply(pd.to_numeric, errors='coerce')
 
-    print(df.dtypes)
+    print('Criando os índices do dataframe')
+    df.set_index(['co_if', 'dt_base'])
 
-    # salva os registros no banco de dados
-    df.to_sql('{}_import'.format(nome_relatorio), con=engine, if_exists='replace')
-    #df.to_csv('{}_import.csv'.format(nome_relatorio), sep=";")
+    # salva os registros no banco de dados    
+    if os.environ.get('IMPORT_TO_DATABASE'):    
+        print('Salvando registros no banco ({})'.format(len(df)))
+        df.to_sql('{}_import'.format(nome_relatorio), con=engine, if_exists='replace')
 
-    return True
+        # executa um select na tabela para ver os registros importados
+        query = "SELECT * FROM {}_import".format(nome_relatorio)
+        df_banco = pd.read_sql(query, engine)
+        df_banco.set_index(['co_if', 'dt_base'])
+        print('Registros importados com sucesso.')
+        
+    if os.environ.get('SAVE_IMPORT_CSV'):
+        print('Salvando arquivo csv dos registros ({})'.format(len(df)))
+        bases_import_folder = prepare_bases_import_folder()
+        file_name = '{}_import.csv'.format(nome_relatorio)
+        file_import_database_path = os.path.join(bases_import_folder, file_name)
+        df.to_csv(file_import_database_path, sep=";")
 
-    # executa para ver os resultados retornados que foram importados
-    df_banco = engine.execute("SELECT * FROM {}_import".format(nome_relatorio)).fetchall()
-    print(nome_relatorio)
-    print(len(df_banco))
-    print('Registros importados com sucesso.')
-
+        # executa um select na tabela para ver os registros importados
+        df_csv = pd.read_csv(file_import_database_path, sep=';', low_memory=False)
+        df_csv.set_index(['co_if', 'dt_base'])
+        print('Registros importados com sucesso.')        
+        
     return True

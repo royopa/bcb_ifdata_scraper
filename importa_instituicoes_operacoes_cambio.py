@@ -13,8 +13,7 @@ nome_relatorio = 'inst_op_cambio_mov_trimestre'
 
 a_excluir = {
     'Unnamed: 0',
-    'Unnamed: 31',
-    'SR'
+    'Unnamed: 31'
 }
 
 a_renomear = {
@@ -23,6 +22,7 @@ a_renomear = {
     'TCB':'tp_consolidado_bancario',
     'Segmento':'segmento',
     'TD':'tp_consolidacao',
+    'SR':'segmento',
     'TC':'tp_controle',
     'Cidade':'cidade',
     'UF':'uf',
@@ -48,6 +48,7 @@ a_renomear = {
     'Total Interbancário':'total_interb_nu_operacoes',
     'Unnamed: 28':'total_interb_nu_valor',
     'Total':'total_nu_operacoes',
-    'Unnamed: 30':'total_valor',
+    'Unnamed: 30':'total_valor'
 }
+
 processa_import(nome_relatorio, a_excluir, a_renomear)

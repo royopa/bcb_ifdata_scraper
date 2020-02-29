@@ -43,9 +43,7 @@ for file_name in sorted(os.listdir(download_folder)):
     trimestre = file_name.split('_')[1]
     relatorio = file_name.split('_')[3]
     restante_arquivo = file_name[7:]
-    
-    #print(ano, trimestre, relatorio, restante_arquivo)
-
+   
 
 # relatórios
 prepare_bases_folder()

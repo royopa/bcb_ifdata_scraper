@@ -9,8 +9,8 @@ from dotenv import load_dotenv
 from dotenv import find_dotenv
 load_dotenv(find_dotenv())
 
-
 nome_relatorio = 'congl_financeiros_ativo'
+
 a_excluir = {
     'Unnamed: 0',
     'Unnamed: 15',
@@ -56,6 +56,7 @@ processa_import(nome_relatorio, a_excluir, a_renomear)
 
 
 nome_relatorio = 'congl_financeiros_resumo'
+
 a_excluir = {
     'Unnamed: 0',
     'Unnamed: 19',

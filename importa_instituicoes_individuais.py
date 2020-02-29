@@ -11,7 +11,6 @@ load_dotenv(find_dotenv())
 
 nome_relatorio = 'inst_individuais_demonstracao_resultado'
 
-
 a_excluir = {
     'Unnamed: 0',
     'Unnamed: 41'
