@@ -102,6 +102,8 @@ def countdown(t):
 
 def get_webdriver():
     options = webdriver.ChromeOptions()
+
+    options.add_argument('--headless')
     options.add_argument('--no-sandbox')
     options.add_argument('--disable-dev-shm-usage')
 
@@ -184,6 +186,10 @@ def get_browser_ifdata():
 
 
 def main(folder_name, id_tipo_if, tipos_relatorios, datas_base, tipo_instituicao):
+    print('='*80)
+    print('Iniciando captura na página ifdata - {}'.format(tipo_instituicao))
+    print('='*80)
+    
     download_folder_path = prepare_download_folder(folder_name)
     browser = get_browser_ifdata()
 
@@ -196,7 +202,7 @@ def main(folder_name, id_tipo_if, tipos_relatorios, datas_base, tipo_instituicao
         browser.execute_script('selectDataBase(' + str(id_data_base) + ')')
         countdown(1)
         data_base = browser.execute_script('return document.getElementById("btnDataBase").innerText')
-        print('Seleciona data-base', data_base)
+        print('Seleciona a data-base', data_base, "\n")
 
         try:
             browser.find_element_by_id('btnTipoInst').click()
