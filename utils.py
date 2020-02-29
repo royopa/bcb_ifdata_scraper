@@ -27,7 +27,7 @@ def processa_relatorio(browser, id_tipo_if, download_folder_path):
     rel = formata_nome_relatorio(rel)
     
     path_new_file = os.path.join(download_folder_path, '{}_{}_{}_{}.csv'.format(ano, trimestre, id_tipo_if, rel))
-    path_downloaded_file = os.path.join(os.sep,'home','rodrigo','Downloads','dados.csv')
+    path_downloaded_file = os.path.join(str(os.path.dirname(os.path.abspath(__file__))), 'downloads','dados.csv')
 
     if os.path.exists(path_new_file):
         print('Arquivo já baixado, pulando')
@@ -101,12 +101,14 @@ def countdown(t):
 
 def get_webdriver():
     options = webdriver.ChromeOptions()
-    #options.add_argument('--headless')
     options.add_argument('--no-sandbox')
     options.add_argument('--disable-dev-shm-usage')
 
-    browser = webdriver.Chrome('chromedriver', options=options)
+    prefs = {"download.default_directory" : os.path.join(str(os.path.dirname(os.path.abspath(__file__))), 'downloads')}
+    options.add_experimental_option("prefs",prefs)
     
+    browser = webdriver.Chrome(options=options)
+        
     return browser
 
 
@@ -194,7 +196,7 @@ def main(folder_name, id_tipo_if, tipos_relatorios, datas_base, tipo_instituicao
                 processa_relatorio(browser, id_tipo_if, download_folder_path)
             except:
                 print('Relatório: {}'.format(tipo_relatorio))
-                print('Tipo de relatório não encontrado, pulando...')
+                print('Tipo de relatório não encontrado ou arquivo já baixado, pulando...')
                 print("\n")
                 continue
 

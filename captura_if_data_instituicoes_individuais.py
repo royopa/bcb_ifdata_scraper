@@ -14,6 +14,6 @@ if __name__ == "__main__":
     ]
     
     # de 23 a 79 instituicoes individuais é 1
-    datas_base = range(0, 1)
+    datas_base = range(0, 1) # range(0, 1) é o primeiro relatório da lista disponível
     # de 0 a 23 instituicoes individuais é 2
     main(folder_name, id_tipo_if, tipos_relatorios, datas_base, tipo_instituicao)
