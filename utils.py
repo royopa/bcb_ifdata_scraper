@@ -111,7 +111,7 @@ def get_webdriver():
     options.add_experimental_option("prefs",prefs)
 
     try:
-        browser = webdriver.Chrome('/usr/local/bin/chromedriver', options=options)
+        browser = webdriver.Chrome(options=options)
     except Exception as e:
         tb = traceback.format_exc()
         print(e, "\n")
