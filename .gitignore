@@ -13,7 +13,6 @@ build/
 develop-eggs/
 dist/
 bases_import/
-bases/
 eggs/
 .eggs/
 lib/

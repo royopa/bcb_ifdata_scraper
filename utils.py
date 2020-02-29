@@ -134,6 +134,8 @@ def merge_arquivos(lista_paths, file_name):
 
     df = pd.concat(dfs, axis=0, ignore_index=True)
 
+    prepare_bases_folder()
+    
     df.to_csv(os.path.join('bases', file_name), sep=";")
     return True
 
