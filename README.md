@@ -49,16 +49,7 @@ Após a importação, os arquivos consolidados na pasta [bases] já podem ser im
 
 Após a finalização da importação, caso o parâmetro SAVE_IMPORT_CSV estiver marcado como True, arquivos de saída com a base estará disponível na pasta [bases_import].
 
+### To do
 
-## Parâmetros
+Pegar o arquivo de análise de dados que foi feito de acordo com a consulta na base de dados importada e fazer um dataframe final usando como índices os campos codigo e dt_base para a criação de uma tabela de indicadores, que poderá ser utilizada para visualização através de uma página web.
 
-Segue abaixo a configuração padrão do banco de dados.
-
-´´´
-# URI da base de dados
-SQLALCHEMY_DATABASE_URI='sqlite:///file.db'
-# indica se a importação deverá ser salva num arquivo csv
-SAVE_IMPORT_CSV=True
-# indica se os arquivos de import deverão ser salvos no banco de dados
-IMPORT_TO_DATABASE=True
-´´´
