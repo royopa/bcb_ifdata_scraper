@@ -263,9 +263,9 @@ def processa_import(nome_relatorio, a_excluir, a_renomear):
     df['co_if'] = df['co_if'].str.replace('.', '')
 
     # convert just columns "a" and "b"
-    df['co_if'] = df['co_if'].astype(int)
+    df['co_if'] = df['co_if'].astype('int64')
     df['tp_controle'] = df['tp_controle'].fillna(0)
-    df['tp_controle'] = df['tp_controle'].astype(int)
+    df['tp_controle'] = df['tp_controle'].astype('int64')
    
     # remove unnamed columns
     print('Removendo colunas não utilizadas')
