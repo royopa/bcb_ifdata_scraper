@@ -3,7 +3,7 @@ from dotenv import find_dotenv
 from dotenv import load_dotenv
 from sqlalchemy import create_engine
 
-from utils import get_prud, processa_import, prepare_bases_folder, merge_arquivos, get_instituicoes
+from utils import get_prud, merge_lot_files, processa_import, prepare_bases_folder, merge_arquivos, get_instituicoes
 
 
 conglomerados_financeiros_resumo_relatorios = []
@@ -63,38 +63,13 @@ prud_resumo_relatorios, prud_segmentacao_relatorios, prud_ativo_relatorios, prud
     download_folder
 )
 
-
-# relatórios
-prepare_bases_folder()
-
-merge_arquivos(
+merge_lot_files(
     prud_resumo_relatorios,
-    'prud_resumo.csv'
-)
-
-merge_arquivos(
     prud_segmentacao_relatorios,
-    'prud_segmentacao.csv'
-)
-
-merge_arquivos(
     prud_ativo_relatorios,
-    'prud_ativo.csv'
-)
-
-merge_arquivos(
     prud_passivo_relatorios,
-    'prud_passivo.csv'
-)
-
-merge_arquivos(
     prud_informacoes_capital_relatorios,
-    'prud_informacoes_capital.csv'
-)
-
-merge_arquivos(
-    prud_demonstracao_resultado_relatorios,
-    'prud_demonstracao_resultado.csv'
+    prud_demonstracao_resultado_relatorios
 )
 
 
