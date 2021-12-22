@@ -426,7 +426,7 @@ def get_prud(download_folder):
     return prud_resumo_relatorios, prud_segmentacao_relatorios, prud_ativo_relatorios, prud_passivo_relatorios, prud_informacoes_capital_relatorios, prud_demonstracao_resultado_relatorios
 
 
-def merge_lot_files(prud_resumo_relatorios, prud_segmentacao_relatorios, prud_ativo_relatorios, prud_passivo_relatorios, prud_informacoes_capital_relatorios, prud_demonstracao_resultado_relatorios):
+def merge_prud_files(prud_resumo_relatorios, prud_segmentacao_relatorios, prud_ativo_relatorios, prud_passivo_relatorios, prud_informacoes_capital_relatorios, prud_demonstracao_resultado_relatorios):
     # relatórios
     prepare_bases_folder()
 
@@ -459,3 +459,52 @@ def merge_lot_files(prud_resumo_relatorios, prud_segmentacao_relatorios, prud_at
         prud_demonstracao_resultado_relatorios,
         'prud_demonstracao_resultado.csv'
     )
+
+
+def merge_cong_files(conglomerados_financeiros_resumo_relatorios, conglomerados_financeiros_ativo_relatorios, conglomerados_financeiros_passivo_relatorios, conglomerados_financeiros_demonstracao_resultado_relatorios):
+    merge_arquivos(
+        conglomerados_financeiros_resumo_relatorios,
+        'congl_financeiros_resumo.csv'
+    )
+
+    merge_arquivos(
+        conglomerados_financeiros_ativo_relatorios,
+        'congl_financeiros_ativo.csv'
+    )
+
+    merge_arquivos(
+        conglomerados_financeiros_passivo_relatorios,
+        'congl_financeiros_passivo.csv'
+    )
+
+    merge_arquivos(
+        conglomerados_financeiros_demonstracao_resultado_relatorios,
+        'congl_financeiros_demonstracao_resultado.csv'
+    )
+
+
+def get_cong(download_folder):
+    conglomerados_financeiros_resumo_relatorios = []
+    conglomerados_financeiros_ativo_relatorios = []
+    conglomerados_financeiros_passivo_relatorios = []
+    conglomerados_financeiros_demonstracao_resultado_relatorios = []
+
+    for file_name in sorted(os.listdir(download_folder)):
+        file_path = os.path.join(download_folder, file_name)
+
+        if not file_path.endswith('.csv'):
+            continue
+
+        if 'resumo' in file_name:
+            conglomerados_financeiros_resumo_relatorios.append(file_path)
+
+        if 'ativo' in file_name:
+            conglomerados_financeiros_ativo_relatorios.append(file_path)
+
+        if 'passivo' in file_name:
+            conglomerados_financeiros_passivo_relatorios.append(file_path)
+
+        if 'demonstracao_de_resultado' in file_name:
+            conglomerados_financeiros_demonstracao_resultado_relatorios.append(
+                file_path)
+    return conglomerados_financeiros_resumo_relatorios, conglomerados_financeiros_ativo_relatorios, conglomerados_financeiros_passivo_relatorios, conglomerados_financeiros_demonstracao_resultado_relatorios

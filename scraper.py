@@ -3,67 +3,32 @@ from dotenv import find_dotenv
 from dotenv import load_dotenv
 from sqlalchemy import create_engine
 
-from utils import get_prud, merge_lot_files, processa_import, prepare_bases_folder, merge_arquivos, get_instituicoes
-
-
-conglomerados_financeiros_resumo_relatorios = []
-conglomerados_financeiros_segmentacao_relatorios = []
-conglomerados_financeiros_ativo_relatorios = []
-conglomerados_financeiros_passivo_relatorios = []
-conglomerados_financeiros_informacoes_capital_relatorios = []
-conglomerados_financeiros_demonstracao_resultado_relatorios = []
+from utils import get_cong, get_prud, merge_cong_files, merge_prud_files, processa_import, prepare_bases_folder, merge_arquivos, get_instituicoes
 
 
 # appenda os arquivos baixados em apenas um arquivo
 download_folder = os.path.join('downloads', 'conglomerados_financeiros')
-
-for file_name in sorted(os.listdir(download_folder)):
-    file_path = os.path.join(download_folder, file_name)
-
-    if not file_path.endswith('.csv'):
-        continue
-
-    if 'resumo' in file_name:
-        conglomerados_financeiros_resumo_relatorios.append(file_path)
-
-    if 'ativo' in file_name:
-        conglomerados_financeiros_ativo_relatorios.append(file_path)
-
-    if 'passivo' in file_name:
-        conglomerados_financeiros_passivo_relatorios.append(file_path)
-
-    if 'demonstracao_de_resultado' in file_name:
-        conglomerados_financeiros_demonstracao_resultado_relatorios.append(
-            file_path)
+conglomerados_financeiros_resumo_relatorios, conglomerados_financeiros_ativo_relatorios,\
+    conglomerados_financeiros_passivo_relatorios, conglomerados_financeiros_demonstracao_resultado_relatorios = get_cong(
+        download_folder
+    )
 
 
-merge_arquivos(
+merge_cong_files(
     conglomerados_financeiros_resumo_relatorios,
-    'congl_financeiros_resumo.csv'
-)
-
-merge_arquivos(
     conglomerados_financeiros_ativo_relatorios,
-    'congl_financeiros_ativo.csv'
-)
-
-merge_arquivos(
     conglomerados_financeiros_passivo_relatorios,
-    'congl_financeiros_passivo.csv'
-)
-
-merge_arquivos(
-    conglomerados_financeiros_demonstracao_resultado_relatorios,
-    'congl_financeiros_demonstracao_resultado.csv'
+    conglomerados_financeiros_demonstracao_resultado_relatorios
 )
 
 
 download_folder = os.path.join('downloads', 'conglomerados_prudenciais')
-prud_resumo_relatorios, prud_segmentacao_relatorios, prud_ativo_relatorios, prud_passivo_relatorios, prud_informacoes_capital_relatorios, prud_demonstracao_resultado_relatorios = get_prud(
-    download_folder
-)
+prud_resumo_relatorios, prud_segmentacao_relatorios, prud_ativo_relatorios,\
+    prud_passivo_relatorios, prud_informacoes_capital_relatorios, prud_demonstracao_resultado_relatorios = get_prud(
+        download_folder
+    )
 
-merge_lot_files(
+merge_prud_files(
     prud_resumo_relatorios,
     prud_segmentacao_relatorios,
     prud_ativo_relatorios,

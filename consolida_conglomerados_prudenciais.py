@@ -1,6 +1,5 @@
 import os
-from utils import get_prud, merge_arquivos, merge_files
-from utils import prepare_bases_folder
+from utils import get_prud, merge_prud_files
 
 download_folder = os.path.join('downloads', 'conglomerados_prudenciais')
 
@@ -8,7 +7,7 @@ prud_resumo_relatorios, prud_segmentacao_relatorios, prud_ativo_relatorios, prud
     download_folder
 )
 
-merge_files(
+merge_prud_files(
     prud_resumo_relatorios,
     prud_segmentacao_relatorios,
     prud_ativo_relatorios,
