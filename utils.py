@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+from dotenv import find_dotenv
+from dotenv import load_dotenv
+from sqlalchemy import create_engine
 import time
 from selenium import webdriver
 import os
@@ -11,24 +14,25 @@ import traceback
 import pandas as pd
 pd.set_option('display.max_columns', 200)
 
-from sqlalchemy import create_engine
 
-from dotenv import load_dotenv
-from dotenv import find_dotenv
 load_dotenv(find_dotenv())
 
 
 def processa_relatorio(browser, id_tipo_if, download_folder_path):
-    data_base = browser.execute_script('return document.getElementById("btnDataBase").innerText')
-    data_base = data_base.replace("/","")
+    data_base = browser.execute_script(
+        'return document.getElementById("btnDataBase").innerText')
+    data_base = data_base.replace("/", "")
     trimestre = data_base[0:2]
     ano = data_base[2:]
 
-    rel = browser.execute_script('return document.getElementById("btnRelatorio").innerText')
+    rel = browser.execute_script(
+        'return document.getElementById("btnRelatorio").innerText')
     rel = formata_nome_relatorio(rel)
-    
-    path_new_file = os.path.join(download_folder_path, '{}_{}_{}_{}.csv'.format(ano, trimestre, id_tipo_if, rel))
-    path_downloaded_file = os.path.join(str(os.path.dirname(os.path.abspath(__file__))), 'downloads','dados.csv')
+
+    path_new_file = os.path.join(
+        download_folder_path, '{}_{}_{}_{}.csv'.format(ano, trimestre, id_tipo_if, rel))
+    path_downloaded_file = os.path.join(
+        str(os.path.dirname(os.path.abspath(__file__))), 'downloads', 'dados.csv')
 
     if os.path.exists(path_new_file):
         print('Arquivo já baixado, pulando')
@@ -41,12 +45,13 @@ def processa_relatorio(browser, id_tipo_if, download_folder_path):
     countdown(5)
 
     wait = WebDriverWait(browser, 120)
-    download_link = wait.until(EC.element_to_be_clickable((By.ID, "aExportCsv")))
+    download_link = wait.until(
+        EC.element_to_be_clickable((By.ID, "aExportCsv")))
     download_link.click()
 
     print('Baixa arquivo dados.csv')
     countdown(2)
-   
+
     shutil.move(
         path_downloaded_file,
         path_new_file
@@ -56,7 +61,7 @@ def processa_relatorio(browser, id_tipo_if, download_folder_path):
 # retira caracteres especiais do nome do arquivo e formata nome
 def formata_nome_relatorio(rel):
     rel = rel.lower()
-    
+
     rel = rel.replace(
         'demonstração de resultado', 'demonstracao_de_resultado')
     rel = rel.replace(
@@ -70,7 +75,8 @@ def formata_nome_relatorio(rel):
         'carteira de crédito ativa pessoa jurídica - modalidade e prazo de vencimento'.lower(),
         'carteira_credito_ativa_pj_modalidade_prazo_vencimento')
     rel = rel.replace(
-        'carteira de crédito ativa pessoa jurídica -  por atividade econômica (cnae)'.lower(),
+        'carteira de crédito ativa pessoa jurídica -  por atividade econômica (cnae)'.lower(
+        ),
         'carteira_credito_ativa_pj_atividade_economica_cnae')
     rel = rel.replace(
         'carteira de crédito ativa pessoa jurídica - por porte do tomador'.lower(),
@@ -107,11 +113,13 @@ def get_webdriver():
     options.add_argument('--no-sandbox')
     options.add_argument('--disable-dev-shm-usage')
 
-    prefs = {"download.default_directory" : os.path.join(str(os.path.dirname(os.path.abspath(__file__))), 'downloads')}
-    options.add_experimental_option("prefs",prefs)
+    prefs = {"download.default_directory": os.path.join(
+        str(os.path.dirname(os.path.abspath(__file__))), 'downloads')}
+    options.add_experimental_option("prefs", prefs)
 
     try:
-        browser = webdriver.Chrome(options=options)
+        browser = webdriver.Chrome(
+            options=options, executable_path='C:/path/to/chromedriver.exe')
     except Exception as e:
         tb = traceback.format_exc()
         print(e, "\n")
@@ -126,7 +134,7 @@ def merge_arquivos(lista_paths, file_name):
     print('='*80)
     print('Consolidando arquivos - {}'.format(file_name))
     print('='*80)
-    
+
     dfs = []
     for file_path in sorted(lista_paths):
         df = pd.read_csv(file_path, sep=";")
@@ -135,7 +143,7 @@ def merge_arquivos(lista_paths, file_name):
     df = pd.concat(dfs, axis=0, ignore_index=True)
 
     prepare_bases_folder()
-    
+
     df.to_csv(os.path.join('bases', file_name), sep=";")
     return True
 
@@ -148,7 +156,7 @@ def prepare_download_folder(folder_name):
 def prepare_bases_folder():
     folder_path = os.path.join('bases')
     return prepare_folder(folder_path)
-   
+
 
 def prepare_folder(folder_path):
     if not os.path.exists(folder_path):
@@ -164,10 +172,10 @@ def prepare_bases_import_folder():
 
 def get_browser_ifdata():
     browser = get_webdriver()
-    
+
     if browser is False:
         return False
-    
+
     print('Acessa a página e aguarda o carregamento do combo de datas base')
     url = 'https://www3.bcb.gov.br/ifdata/index.html'
     browser.get(url)
@@ -181,7 +189,7 @@ def get_browser_ifdata():
     xpath = '//*[@id="ulDataBase"]/li[79]/a'
     wait = WebDriverWait(browser, 30)
     wait.until(EC.element_to_be_clickable((By.XPATH, xpath)))
-    
+
     botao.click()
 
     return browser
@@ -191,19 +199,20 @@ def main(folder_name, id_tipo_if, tipos_relatorios, datas_base, tipo_instituicao
     print('='*80)
     print('Iniciando captura na página ifdata - {}'.format(tipo_instituicao))
     print('='*80)
-    
+
     download_folder_path = prepare_download_folder(folder_name)
     browser = get_browser_ifdata()
 
     if browser is False:
         return False
-    
+
     # baixa todas as bases de dados (de 0 a 78 em 08/02/2020)
     browser.implicitly_wait(10)
     for id_data_base in datas_base:
         browser.execute_script('selectDataBase(' + str(id_data_base) + ')')
         countdown(1)
-        data_base = browser.execute_script('return document.getElementById("btnDataBase").innerText')
+        data_base = browser.execute_script(
+            'return document.getElementById("btnDataBase").innerText')
         print('Seleciona a data-base', data_base, "\n")
 
         try:
@@ -211,7 +220,8 @@ def main(folder_name, id_tipo_if, tipos_relatorios, datas_base, tipo_instituicao
             elem = browser.find_element_by_link_text(tipo_instituicao)
             elem.click()
         except:
-            print('Tipo de instituição não encontrada na data base {}, pulando...'.format(data_base))
+            print('Tipo de instituição não encontrada na data base {}, pulando...'.format(
+                data_base))
             print("\n")
             continue
 
@@ -224,7 +234,8 @@ def main(folder_name, id_tipo_if, tipos_relatorios, datas_base, tipo_instituicao
                 processa_relatorio(browser, id_tipo_if, download_folder_path)
             except:
                 print('Relatório: {}'.format(tipo_relatorio))
-                print('Tipo de relatório não encontrado ou arquivo já baixado, pulando...')
+                print(
+                    'Tipo de relatório não encontrado ou arquivo já baixado, pulando...')
                 print("\n")
                 continue
 
@@ -237,10 +248,11 @@ def processa_import(nome_relatorio, a_excluir, a_renomear):
     print('Importando {} para a base'.format(nome_relatorio))
     print('='*80)
 
-    engine = create_engine(os.environ.get('SQLALCHEMY_DATABASE_URI'), echo=False)
+    engine = create_engine(os.environ.get(
+        'SQLALCHEMY_DATABASE_URI'), echo=False)
 
     file_name = '{}.csv'.format(nome_relatorio)
-    
+
     print('Lendo o csv {}'.format(file_name))
     df = pd.read_csv(
         os.path.join('bases', file_name),
@@ -248,8 +260,8 @@ def processa_import(nome_relatorio, a_excluir, a_renomear):
         sep=";"
     )
 
-    print('O dataframe tem {} registros'.format(len(df)))    
-    
+    print('O dataframe tem {} registros'.format(len(df)))
+
     # renomeia as colunas
     print('Renomeando colunas')
     df = df.rename(columns=a_renomear)
@@ -266,7 +278,7 @@ def processa_import(nome_relatorio, a_excluir, a_renomear):
     df['co_if'] = df['co_if'].astype('int64')
     df['tp_controle'] = df['tp_controle'].fillna(0)
     df['tp_controle'] = df['tp_controle'].astype('int64')
-   
+
     # remove unnamed columns
     print('Removendo colunas não utilizadas')
     for nome_coluna in sorted(a_excluir):
@@ -276,12 +288,12 @@ def processa_import(nome_relatorio, a_excluir, a_renomear):
     # e que não devem tem seu tipo alteradas
     lista_ignorar = [
         'nome_if',
-        'co_if',  
+        'co_if',
         'tp_consolidado_bancario',
         'segmento',
         'tp_consolidacao',
         'tp_controle',
-        'cidade', 
+        'cidade',
         'uf',
         'dt_base',
         'conglomerado',
@@ -311,27 +323,30 @@ def processa_import(nome_relatorio, a_excluir, a_renomear):
     print('Criando os índices do dataframe')
     df.set_index(['co_if', 'dt_base'])
 
-    # salva os registros no banco de dados    
-    if os.environ.get('IMPORT_TO_DATABASE'):    
+    # salva os registros no banco de dados
+    if os.environ.get('IMPORT_TO_DATABASE'):
         print('Salvando registros no banco ({})'.format(len(df)))
-        df.to_sql('{}_import'.format(nome_relatorio), con=engine, if_exists='replace')
+        df.to_sql('{}_import'.format(nome_relatorio),
+                  con=engine, if_exists='replace')
 
         # executa um select na tabela para ver os registros importados
         query = "SELECT * FROM {}_import".format(nome_relatorio)
         df_banco = pd.read_sql(query, engine)
         df_banco.set_index(['co_if', 'dt_base'])
         print('Registros importados com sucesso.')
-        
+
     if os.environ.get('SAVE_IMPORT_CSV'):
         print('Salvando arquivo csv dos registros ({})'.format(len(df)))
         bases_import_folder = prepare_bases_import_folder()
         file_name = '{}_import.csv'.format(nome_relatorio)
-        file_import_database_path = os.path.join(bases_import_folder, file_name)
+        file_import_database_path = os.path.join(
+            bases_import_folder, file_name)
         df.to_csv(file_import_database_path, sep=";")
 
         # executa um select na tabela para ver os registros importados
-        df_csv = pd.read_csv(file_import_database_path, sep=';', low_memory=False)
+        df_csv = pd.read_csv(file_import_database_path,
+                             sep=';', low_memory=False)
         df_csv.set_index(['co_if', 'dt_base'])
-        print('Registros importados com sucesso.')        
-        
+        print('Registros importados com sucesso.')
+
     return True
