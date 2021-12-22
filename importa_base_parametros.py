@@ -9,8 +9,8 @@ load_dotenv(find_dotenv())
 engine = create_engine(os.environ.get('SQLALCHEMY_DATABASE_URI'), echo=False)
 
 
-file_name = 'base.xlsx'
-df = pd.read_excel(os.path.join('.', file_name))
+FILE_NAME = 'base.xlsx'
+df = pd.read_excel(os.path.join('.', FILE_NAME))
 print(df.columns)
 print(df.head())
 

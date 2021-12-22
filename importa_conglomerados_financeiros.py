@@ -1,10 +1,9 @@
+from dotenv import load_dotenv, find_dotenv
 from utils import processa_import
 
-from dotenv import load_dotenv
-from dotenv import find_dotenv
 load_dotenv(find_dotenv())
 
-nome_relatorio = 'congl_financeiros_ativo'
+NOME_RELATORIO = 'congl_financeiros_ativo'
 
 a_excluir = {
     'Unnamed: 0',
@@ -47,10 +46,10 @@ a_renomear = {
     'Conglomerado Prudencial': 'conglomerado_prudencial',
     'TI': 'ti'
 }
-processa_import(nome_relatorio, a_excluir, a_renomear)
+processa_import(NOME_RELATORIO, a_excluir, a_renomear)
 
 
-nome_relatorio = 'congl_financeiros_resumo'
+NOME_RELATORIO = 'congl_financeiros_resumo'
 
 a_excluir = {
     'Unnamed: 0',
@@ -85,10 +84,10 @@ a_renomear = {
     'Conglomerado Prudencial': 'conglomerado_prudencial',
     'TI': 'ti'
 }
-processa_import(nome_relatorio, a_excluir, a_renomear)
+processa_import(NOME_RELATORIO, a_excluir, a_renomear)
 
 
-nome_relatorio = 'congl_financeiros_passivo'
+NOME_RELATORIO = 'congl_financeiros_passivo'
 a_excluir = {
     'Unnamed: 0',
     'Unnamed: 24',
@@ -132,9 +131,9 @@ a_renomear = {
     'Conglomerado Prudencial': 'conglomerado_prudencial',
     'TI': 'ti'
 }
-processa_import(nome_relatorio, a_excluir, a_renomear)
+processa_import(NOME_RELATORIO, a_excluir, a_renomear)
 
-nome_relatorio = 'congl_financeiros_demonstracao_resultado'
+NOME_RELATORIO = 'congl_financeiros_demonstracao_resultado'
 a_excluir = {
     'Unnamed: 0',
     'Unnamed: 23',
@@ -191,4 +190,4 @@ a_renomear = {
     'TI': 'ti'
 }
 
-processa_import(nome_relatorio, a_excluir, a_renomear)
+processa_import(NOME_RELATORIO, a_excluir, a_renomear)

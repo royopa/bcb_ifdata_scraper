@@ -3,9 +3,9 @@ from utils import main
 
 
 if __name__ == "__main__":
-    folder_name = 'conglomerados_financeiros'
-    id_tipo_if = 1
-    tipo_instituicao = 'Conglomerados Financeiros e Instituições Independentes'
+    FOLDER_NAME = 'conglomerados_financeiros'
+    ID_TIPO_IF = 1
+    TIPO_INSTITUICAO = 'Conglomerados Financeiros e Instituições Independentes'
     tipos_relatorios = [
         'Resumo',
         'Ativo',
@@ -21,4 +21,4 @@ if __name__ == "__main__":
         'Carteira de crédito ativa - por região geográfica'
     ]
     datas_base = range(0, 1)
-    main(folder_name, id_tipo_if, tipos_relatorios, datas_base, tipo_instituicao)
+    main(FOLDER_NAME, ID_TIPO_IF, tipos_relatorios, datas_base, TIPO_INSTITUICAO)
