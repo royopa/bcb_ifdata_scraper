@@ -15,16 +15,16 @@ print(df.columns)
 print(df.head())
 
 a_renomear = {
-    'marcado':'marcado',
-    'Alocado':'alocado',
-    'SIRAT':'sirat',
-    'Outro Nome':'outro_nome',
-    'BACEN':'bacen',
-    'CNPJ Base':'cnpj_base',
-    'Conglomerado Financeiro':'conglomerado',
-    'CNPJ':'cnpj',
-    'CVM':'cvm',
-    'PL (R$ Mil) - 3T19':'pl_mil_3T19'
+    'marcado': 'marcado',
+    'Alocado': 'alocado',
+    'SIRAT': 'sirat',
+    'Outro Nome': 'outro_nome',
+    'BACEN': 'bacen',
+    'CNPJ Base': 'cnpj_base',
+    'Conglomerado Financeiro': 'conglomerado',
+    'CNPJ': 'cnpj',
+    'CVM': 'cvm',
+    'PL (R$ Mil) - 3T19': 'pl_mil_3T19'
 }
 
 # renomeia as colunas
