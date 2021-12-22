@@ -361,3 +361,66 @@ def processa_import(nome_relatorio, a_excluir, a_renomear):
         print('Registros importados com sucesso.')
 
     return True
+
+
+def get_instituicoes(download_folder):
+    instituicoes_individuais_resumo_relatorios = []
+    instituicoes_individuais_ativo_relatorios = []
+    instituicoes_individuais_passivo_relatorios = []
+    instituicoes_individuais_demonstracao_resultado_relatorios = []
+
+    for file_name in sorted(os.listdir(download_folder)):
+        file_path = os.path.join(download_folder, file_name)
+
+        if not file_path.endswith('.csv'):
+            continue
+
+        if 'resumo' in file_name:
+            instituicoes_individuais_resumo_relatorios.append(file_path)
+
+        if 'ativo' in file_name:
+            instituicoes_individuais_ativo_relatorios.append(file_path)
+
+        if 'passivo' in file_name:
+            instituicoes_individuais_passivo_relatorios.append(file_path)
+
+        if 'demonstracao_de_resultado' in file_name:
+            instituicoes_individuais_demonstracao_resultado_relatorios.append(
+                file_path)
+
+    return instituicoes_individuais_resumo_relatorios, instituicoes_individuais_ativo_relatorios, instituicoes_individuais_passivo_relatorios, instituicoes_individuais_demonstracao_resultado_relatorios
+
+
+def get_prud(download_folder):
+    prud_resumo_relatorios = []
+    prud_segmentacao_relatorios = []
+    prud_ativo_relatorios = []
+    prud_passivo_relatorios = []
+    prud_informacoes_capital_relatorios = []
+    prud_demonstracao_resultado_relatorios = []
+
+    for file_name in sorted(os.listdir(download_folder)):
+        file_path = os.path.join(download_folder, file_name)
+
+        if not file_path.endswith('.csv'):
+            continue
+
+        if 'segmentacao' in file_name:
+            prud_segmentacao_relatorios.append(file_path)
+
+        if 'resumo' in file_name:
+            prud_resumo_relatorios.append(file_path)
+
+        if 'ativo' in file_name:
+            prud_ativo_relatorios.append(file_path)
+
+        if 'passivo' in file_name:
+            prud_passivo_relatorios.append(file_path)
+
+        if 'informacoes_de_capital' in file_name:
+            prud_informacoes_capital_relatorios.append(file_path)
+
+        if 'demonstracao_de_resultado' in file_name:
+            prud_demonstracao_resultado_relatorios.append(file_path)
+
+    return prud_resumo_relatorios, prud_segmentacao_relatorios, prud_ativo_relatorios, prud_passivo_relatorios, prud_informacoes_capital_relatorios, prud_demonstracao_resultado_relatorios
