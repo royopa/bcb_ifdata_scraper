@@ -1,10 +1,9 @@
 import os
 from dotenv import find_dotenv
 from dotenv import load_dotenv
-from utils import processa_import
-from utils import prepare_bases_folder
 from sqlalchemy import create_engine
-from utils import merge_arquivos
+
+from utils import processa_import, prepare_bases_folder, merge_arquivos
 
 
 conglomerados_financeiros_resumo_relatorios = []
@@ -235,7 +234,7 @@ merge_arquivos(
 
 load_dotenv(find_dotenv())
 
-nome_relatorio = 'congl_financeiros_ativo'
+NOME_RELATORIO = 'congl_financeiros_ativo'
 
 a_excluir = {
     'Unnamed: 0',
@@ -278,10 +277,10 @@ a_renomear = {
     'Conglomerado Prudencial': 'conglomerado_prudencial',
     'TI': 'ti'
 }
-processa_import(nome_relatorio, a_excluir, a_renomear)
+processa_import(NOME_RELATORIO, a_excluir, a_renomear)
 
 
-nome_relatorio = 'congl_financeiros_resumo'
+NOME_RELATORIO = 'congl_financeiros_resumo'
 
 a_excluir = {
     'Unnamed: 0',
@@ -316,10 +315,10 @@ a_renomear = {
     'Conglomerado Prudencial': 'conglomerado_prudencial',
     'TI': 'ti'
 }
-processa_import(nome_relatorio, a_excluir, a_renomear)
+processa_import(NOME_RELATORIO, a_excluir, a_renomear)
 
 
-nome_relatorio = 'congl_financeiros_passivo'
+NOME_RELATORIO = 'congl_financeiros_passivo'
 a_excluir = {
     'Unnamed: 0',
     'Unnamed: 24',
@@ -363,9 +362,9 @@ a_renomear = {
     'Conglomerado Prudencial': 'conglomerado_prudencial',
     'TI': 'ti'
 }
-processa_import(nome_relatorio, a_excluir, a_renomear)
+processa_import(NOME_RELATORIO, a_excluir, a_renomear)
 
-nome_relatorio = 'congl_financeiros_demonstracao_resultado'
+NOME_RELATORIO = 'congl_financeiros_demonstracao_resultado'
 a_excluir = {
     'Unnamed: 0',
     'Unnamed: 23',
@@ -422,14 +421,14 @@ a_renomear = {
     'TI': 'ti'
 }
 
-processa_import(nome_relatorio, a_excluir, a_renomear)
+processa_import(NOME_RELATORIO, a_excluir, a_renomear)
 
 
 load_dotenv(find_dotenv())
 
 engine = create_engine(os.environ.get('SQLALCHEMY_DATABASE_URI'), echo=False)
 
-nome_relatorio = 'prud_resumo'
+NOME_RELATORIO = 'prud_resumo'
 
 a_excluir = {
     'Unnamed: 0',
@@ -460,9 +459,9 @@ a_renomear = {
     'Número de Postos de Atendimento': 'nu_postos_atendimento',
 }
 
-processa_import(nome_relatorio, a_excluir, a_renomear)
+processa_import(NOME_RELATORIO, a_excluir, a_renomear)
 
-nome_relatorio = 'prud_ativo'
+NOME_RELATORIO = 'prud_ativo'
 a_excluir = {
     'Unnamed: 0',
     'Unnamed: 26'
@@ -497,10 +496,10 @@ a_renomear = {
     'Credores por Antecipação de Valor Residual (j)': 'credores_antecipacao_valor_residual_2',
     'Ativo Total (k) = (i) - (j)': 'ativo_total'
 }
-processa_import(nome_relatorio, a_excluir, a_renomear)
+processa_import(NOME_RELATORIO, a_excluir, a_renomear)
 
 
-nome_relatorio = 'prud_passivo'
+NOME_RELATORIO = 'prud_passivo'
 
 a_excluir = {
     'Unnamed: 0',
@@ -540,10 +539,10 @@ a_renomear = {
     'Patrimônio Líquido (j)': 'patrimonio_liquido',
     'Passivo Total (k) = (h) + (i) + (j)': 'passivo_total'
 }
-processa_import(nome_relatorio, a_excluir, a_renomear)
+processa_import(NOME_RELATORIO, a_excluir, a_renomear)
 
 
-nome_relatorio = 'prud_informacoes_capital'
+NOME_RELATORIO = 'prud_informacoes_capital'
 
 a_excluir = {
     'Unnamed: 0',
@@ -580,10 +579,10 @@ a_renomear = {
     'Razão de Alavancagem (n) = (c) / (j)': 'razao_alavancagem',
     'Índice de Imobilização (o)': 'ic_imobilizacao',
 }
-processa_import(nome_relatorio, a_excluir, a_renomear)
+processa_import(NOME_RELATORIO, a_excluir, a_renomear)
 
 
-nome_relatorio = 'prud_demonstracao_resultado'
+NOME_RELATORIO = 'prud_demonstracao_resultado'
 
 a_excluir = {
     'Unnamed: 0',
@@ -632,10 +631,10 @@ a_renomear = {
     'Juros Sobre Capital Próprio (k)': 'juros_sobre_capital_proprio',
     'Juros Sobre Capital Social de Cooperativas (k)': 'juros_sobre_capital_cooperativas'
 }
-processa_import(nome_relatorio, a_excluir, a_renomear)
+processa_import(NOME_RELATORIO, a_excluir, a_renomear)
 
 
-nome_relatorio = 'prud_segmentacao'
+NOME_RELATORIO = 'prud_segmentacao'
 
 a_excluir = {
     'Unnamed: 0',
@@ -659,13 +658,13 @@ a_renomear = {
     'Total de Ativos Consolidados no Exterior (US$ mil)': 'total_ativos_consolidado_exterior',
     'Data da Última Alteração de Segmento': 'dt_ultima_alteracao_segmento'
 }
-processa_import(nome_relatorio, a_excluir, a_renomear)
+processa_import(NOME_RELATORIO, a_excluir, a_renomear)
 
 
 load_dotenv(find_dotenv())
 
 
-nome_relatorio = 'inst_individuais_demonstracao_resultado'
+NOME_RELATORIO = 'inst_individuais_demonstracao_resultado'
 
 a_excluir = {
     'Unnamed: 0',
@@ -718,10 +717,10 @@ a_renomear = {
     'Conglomerado Prudencial': 'conglomerado_prudencial',
     'TI': 'ti'
 }
-processa_import(nome_relatorio, a_excluir, a_renomear)
+processa_import(NOME_RELATORIO, a_excluir, a_renomear)
 
 
-nome_relatorio = 'inst_individuais_resumo'
+NOME_RELATORIO = 'inst_individuais_resumo'
 
 a_excluir = {
     'Unnamed: 0',
@@ -752,9 +751,9 @@ a_renomear = {
     'TI': 'ti'
 }
 
-processa_import(nome_relatorio, a_excluir, a_renomear)
+processa_import(NOME_RELATORIO, a_excluir, a_renomear)
 
-nome_relatorio = 'inst_individuais_ativo'
+NOME_RELATORIO = 'inst_individuais_ativo'
 
 a_excluir = {
     'Unnamed: 0',
@@ -794,9 +793,9 @@ a_renomear = {
     'TI': 'ti'
 }
 
-processa_import(nome_relatorio, a_excluir, a_renomear)
+processa_import(NOME_RELATORIO, a_excluir, a_renomear)
 
-nome_relatorio = 'inst_individuais_passivo'
+NOME_RELATORIO = 'inst_individuais_passivo'
 
 a_excluir = {
     'Unnamed: 0',
@@ -839,13 +838,13 @@ a_renomear = {
     'Conglomerado Prudencial': 'conglomerado_prudencial',
     'TI': 'ti'
 }
-processa_import(nome_relatorio, a_excluir, a_renomear)
+processa_import(NOME_RELATORIO, a_excluir, a_renomear)
 
 
 load_dotenv(find_dotenv())
 
 
-nome_relatorio = 'inst_op_cambio_mov_trimestre'
+NOME_RELATORIO = 'inst_op_cambio_mov_trimestre'
 
 a_excluir = {
     'Unnamed: 0',
@@ -887,4 +886,4 @@ a_renomear = {
     'Unnamed: 30': 'total_valor'
 }
 
-processa_import(nome_relatorio, a_excluir, a_renomear)
+processa_import(NOME_RELATORIO, a_excluir, a_renomear)
