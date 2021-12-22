@@ -1,11 +1,9 @@
+from dotenv import load_dotenv, find_dotenv
 from utils import processa_import
 
-from dotenv import load_dotenv
-from dotenv import find_dotenv
 load_dotenv(find_dotenv())
 
-
-nome_relatorio = 'inst_op_cambio_mov_trimestre'
+NOME_RELATORIO = 'inst_op_cambio_mov_trimestre'
 
 a_excluir = {
     'Unnamed: 0',
@@ -47,4 +45,4 @@ a_renomear = {
     'Unnamed: 30': 'total_valor'
 }
 
-processa_import(nome_relatorio, a_excluir, a_renomear)
+processa_import(NOME_RELATORIO, a_excluir, a_renomear)
