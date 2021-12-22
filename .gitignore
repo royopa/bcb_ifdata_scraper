@@ -111,6 +111,9 @@ venv/
 ENV/
 env.bak/
 venv.bak/
+dowloads/
+bases/
+chromedriver
 
 # Spyder project settings
 .spyderproject
