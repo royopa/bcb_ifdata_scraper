@@ -1,21 +1,23 @@
 # -*- coding: utf-8 -*-
-from dotenv import find_dotenv
-from dotenv import load_dotenv
-from sqlalchemy import create_engine
 import time
-from selenium import webdriver
 import os
 import glob
 import shutil
 from pathlib import Path
+import traceback
+
+from dotenv import find_dotenv, load_dotenv
+
+from sqlalchemy import create_engine
+
+from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
-import traceback
+
 import pandas as pd
+
 pd.set_option('display.max_columns', 200)
-
-
 load_dotenv(find_dotenv())
 
 
@@ -58,6 +60,8 @@ def processa_relatorio(browser, id_tipo_if, download_folder_path):
         path_new_file
     )
 
+    return True
+
 
 # retira caracteres especiais do nome do arquivo e formata nome
 def formata_nome_relatorio(rel):
@@ -98,13 +102,13 @@ def formata_nome_relatorio(rel):
     return rel
 
 
-def countdown(t):
-    while t:
-        mins, secs = divmod(t, 60)
+def countdown(_time):
+    while _time:
+        mins, secs = divmod(_time, 60)
         timeformat = '{:02d}:{:02d}'.format(mins, secs)
         print(timeformat, end='\r')
         time.sleep(1)
-        t -= 1
+        _time -= 1
 
 
 def get_webdriver():
@@ -126,10 +130,10 @@ def get_webdriver():
                     os.path.join(os.path.dirname(os.path.abspath(__file__)), "*")))
             )[0]
         )
-    except Exception as e:
-        tb = traceback.format_exc()
-        print(e, "\n")
-        print(tb)
+    except Exception as expt:
+        _traceback = traceback.format_exc()
+        print(expt, "\n")
+        print(_traceback)
         return False
 
     return browser
@@ -143,14 +147,14 @@ def merge_arquivos(lista_paths, file_name):
 
     dfs = []
     for file_path in sorted(lista_paths):
-        df = pd.read_csv(file_path, sep=";")
-        dfs.append(df)
+        dataframe = pd.read_csv(file_path, sep=";")
+        dfs.append(dataframe)
 
-    df = pd.concat(dfs, axis=0, ignore_index=True)
+    dataframe = pd.concat(dfs, axis=0, ignore_index=True)
 
     prepare_bases_folder()
 
-    df.to_csv(os.path.join('bases', file_name), sep=";")
+    dataframe.to_csv(os.path.join('bases', file_name), sep=";")
     return True
 
 
@@ -225,7 +229,7 @@ def main(folder_name, id_tipo_if, tipos_relatorios, datas_base, tipo_instituicao
             browser.find_element_by_id('btnTipoInst').click()
             elem = browser.find_element_by_link_text(tipo_instituicao)
             elem.click()
-        except:
+        except Exception:
             print('Tipo de instituição não encontrada na data base {}, pulando...'.format(
                 data_base))
             print("\n")
@@ -238,7 +242,7 @@ def main(folder_name, id_tipo_if, tipos_relatorios, datas_base, tipo_instituicao
                 elem = browser.find_element_by_link_text(tipo_relatorio)
                 elem.click()
                 processa_relatorio(browser, id_tipo_if, download_folder_path)
-            except:
+            except Exception:
                 print('Relatório: {}'.format(tipo_relatorio))
                 print(
                     'Tipo de relatório não encontrado ou arquivo já baixado, pulando...')
@@ -247,6 +251,7 @@ def main(folder_name, id_tipo_if, tipos_relatorios, datas_base, tipo_instituicao
 
     browser.close()
     browser.quit()
+    return True
 
 
 def processa_import(nome_relatorio, a_excluir, a_renomear):
@@ -260,35 +265,35 @@ def processa_import(nome_relatorio, a_excluir, a_renomear):
     file_name = '{}.csv'.format(nome_relatorio)
 
     print('Lendo o csv {}'.format(file_name))
-    df = pd.read_csv(
+    dataframe = pd.read_csv(
         os.path.join('bases', file_name),
         low_memory=False,
         sep=";"
     )
 
-    print('O dataframe tem {} registros'.format(len(df)))
+    print('O dataframe tem {} registros'.format(len(dataframe)))
 
     # renomeia as colunas
     print('Renomeando colunas')
-    df = df.rename(columns=a_renomear)
+    dataframe = dataframe.rename(columns=a_renomear)
 
     # remove informações que são consolidadas
     print('Removendo registros inválidos')
-    df = df[df['co_if'].notnull()]
+    dataframe = dataframe[dataframe['co_if'].notnull()]
 
     # remove points from co_if
-    df['co_if'] = df['co_if'].astype(str)
-    df['co_if'] = df['co_if'].str.replace('.', '')
+    dataframe['co_if'] = dataframe['co_if'].astype(str)
+    dataframe['co_if'] = dataframe['co_if'].str.replace('.', '')
 
     # convert just columns "a" and "b"
-    df['co_if'] = df['co_if'].astype('int64')
-    df['tp_controle'] = df['tp_controle'].fillna(0)
-    df['tp_controle'] = df['tp_controle'].astype('int64')
+    dataframe['co_if'] = dataframe['co_if'].astype('int64')
+    dataframe['tp_controle'] = dataframe['tp_controle'].fillna(0)
+    dataframe['tp_controle'] = dataframe['tp_controle'].astype('int64')
 
     # remove unnamed columns
     print('Removendo colunas não utilizadas')
     for nome_coluna in sorted(a_excluir):
-        df.drop(nome_coluna, axis=1, inplace=True)
+        dataframe.drop(nome_coluna, axis=1, inplace=True)
 
     # ignora as colunas que já possuem o campo do tipo string
     # e que não devem tem seu tipo alteradas
@@ -313,27 +318,27 @@ def processa_import(nome_relatorio, a_excluir, a_renomear):
     for nome_coluna in a_renomear:
         coluna = a_renomear.get(nome_coluna)
         if coluna not in lista_ignorar:
-            df[coluna] = df[coluna].astype(str)
-            df[coluna] = df[coluna].str.replace('.', '')
-            df[coluna] = df[coluna].str.replace(',', '.')
-            df[coluna] = df[coluna].str.replace('Não', '0')
-            df[coluna] = df[coluna].str.replace('Sim', '1')
-            df[coluna] = df[coluna].str.replace('NI', '0')
-            df[coluna] = df[coluna].str.replace('NA', '0')
-            df[coluna] = df[coluna].str.replace('%', '')
-            df[coluna] = df[coluna].str.replace('*', '0')
+            dataframe[coluna] = dataframe[coluna].astype(str)
+            dataframe[coluna] = dataframe[coluna].str.replace('.', '')
+            dataframe[coluna] = dataframe[coluna].str.replace(',', '.')
+            dataframe[coluna] = dataframe[coluna].str.replace('Não', '0')
+            dataframe[coluna] = dataframe[coluna].str.replace('Sim', '1')
+            dataframe[coluna] = dataframe[coluna].str.replace('NI', '0')
+            dataframe[coluna] = dataframe[coluna].str.replace('NA', '0')
+            dataframe[coluna] = dataframe[coluna].str.replace('%', '')
+            dataframe[coluna] = dataframe[coluna].str.replace('*', '0')
 
-            df[coluna] = df[coluna].astype(float)
+            dataframe[coluna] = dataframe[coluna].astype(float)
             #df[coluna] = df[coluna].apply(pd.to_numeric, errors='coerce')
 
     print('Criando os índices do dataframe')
-    df.set_index(['co_if', 'dt_base'])
+    dataframe.set_index(['co_if', 'dt_base'])
 
     # salva os registros no banco de dados
     if os.environ.get('IMPORT_TO_DATABASE'):
-        print('Salvando registros no banco ({})'.format(len(df)))
-        df.to_sql('{}_import'.format(nome_relatorio),
-                  con=engine, if_exists='replace')
+        print('Salvando registros no banco ({})'.format(len(dataframe)))
+        dataframe.to_sql('{}_import'.format(nome_relatorio),
+                         con=engine, if_exists='replace')
 
         # executa um select na tabela para ver os registros importados
         query = "SELECT * FROM {}_import".format(nome_relatorio)
@@ -342,12 +347,12 @@ def processa_import(nome_relatorio, a_excluir, a_renomear):
         print('Registros importados com sucesso.')
 
     if os.environ.get('SAVE_IMPORT_CSV'):
-        print('Salvando arquivo csv dos registros ({})'.format(len(df)))
+        print('Salvando arquivo csv dos registros ({})'.format(len(dataframe)))
         bases_import_folder = prepare_bases_import_folder()
         file_name = '{}_import.csv'.format(nome_relatorio)
         file_import_database_path = os.path.join(
             bases_import_folder, file_name)
-        df.to_csv(file_import_database_path, sep=";")
+        dataframe.to_csv(file_import_database_path, sep=";")
 
         # executa um select na tabela para ver os registros importados
         df_csv = pd.read_csv(file_import_database_path,
