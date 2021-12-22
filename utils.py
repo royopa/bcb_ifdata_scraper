@@ -5,6 +5,7 @@ from sqlalchemy import create_engine
 import time
 from selenium import webdriver
 import os
+import glob
 import shutil
 from pathlib import Path
 from selenium.webdriver.common.by import By
@@ -119,7 +120,12 @@ def get_webdriver():
 
     try:
         browser = webdriver.Chrome(
-            options=options, executable_path='C:/path/to/chromedriver.exe')
+            options=options,
+            executable_path=list(
+                filter(lambda _file: 'chrome' in _file, glob.glob(
+                    os.path.join(os.path.dirname(os.path.abspath(__file__)), "*")))
+            )[0]
+        )
     except Exception as e:
         tb = traceback.format_exc()
         print(e, "\n")
