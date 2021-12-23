@@ -122,7 +122,10 @@ def get_webdriver():
             options=options,
             executable_path=list(
                 filter(lambda _file: 'chrome' in _file, glob.glob(
-                    os.path.join(os.path.dirname(os.path.abspath(__file__)), "*")))
+                    '{0}/{1}/*'.format(os.path.dirname(
+                        '/'.join(os.path.abspath(__file__).split('/')[:-1])
+                    ), 'resources')
+                ))
             )[0]
         )
     except Exception as expt:
