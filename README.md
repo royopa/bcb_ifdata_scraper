@@ -12,7 +12,7 @@ Para iniciar o processo primeiro é necessario a criação de um ambiente virtua
 ## Capturando arquivos
 
 A captura dos arquivos do site é realizada de acordo com o tipo de instituição financeira, através dos scripts abaixo:
-Lembre-se que o [Chrome Driver](https://chromedriver.chromium.org/downloads) precisa estar no PATH do seu ambiente para ca captura funcionar corretamente.
+Lembre-se que o [Chrome Driver](https://chromedriver.chromium.org/downloads) precisa estar no PATH do seu ambiente para a captura funcionar corretamente.
 
 > python captura_if_data_instituicoes_individuais.py
 > python captura_if_data_conglomerados_financeiros.py
