@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from utils import main
 
+
 if __name__ == "__main__":
     FOLDER_NAME = 'conglomerados_financeiros'
     ID_TIPO_IF = 1
@@ -20,11 +21,4 @@ if __name__ == "__main__":
         'Carteira de crédito ativa - por região geográfica'
     ]
     datas_base = range(0, 1)
-
-    main(
-        FOLDER_NAME,
-        ID_TIPO_IF,
-        tipos_relatorios,
-        datas_base,
-        TIPO_INSTITUICAO
-    )
+    main(FOLDER_NAME, ID_TIPO_IF, tipos_relatorios, datas_base, TIPO_INSTITUICAO)

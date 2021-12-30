@@ -21,128 +21,6 @@ pd.set_option('display.max_columns', 200)
 load_dotenv(find_dotenv())
 
 
-def main(folder_name, id_tipo_if, tipos_relatorios, datas_base, tipo_instituicao):
-    print('='*80)
-    print('Iniciando captura na página ifdata - {}'.format(tipo_instituicao))
-    print('='*80)
-
-    download_folder_path = prepare_download_folder(folder_name)
-    browser = get_browser_ifdata()
-
-    if browser is False:
-        return False
-
-    browser.implicitly_wait(10)
-    for id_data_base in datas_base:
-        browser.execute_script('selectDataBase(' + str(id_data_base) + ')')
-        countdown(1)
-        data_base = browser.execute_script(
-            'return document.getElementById("btnDataBase").innerText')
-        print('Seleciona a data-base', data_base, "\n")
-
-        try:
-            browser.find_element_by_id('btnTipoInst').click()
-            elem = browser.find_element_by_link_text(tipo_instituicao)
-            elem.click()
-
-        except Exception:
-            print('Tipo de instituição não encontrada na data base {}, pulando...'.format(
-                data_base))
-            print("\n")
-            continue
-
-        # itens do relatório
-        for tipo_relatorio in tipos_relatorios:
-            try:
-                browser.find_element_by_id('btnRelatorio').click()
-                elem = browser.find_element_by_link_text(tipo_relatorio)
-                elem.click()
-                processa_relatorio(browser, id_tipo_if, download_folder_path)
-
-            except Exception:
-                print('Relatório: {}'.format(tipo_relatorio))
-                print(
-                    'Tipo de relatório não encontrado ou arquivo já baixado, pulando...')
-                print("\n")
-                continue
-
-    browser.close()
-    browser.quit()
-    return True
-
-
-def prepare_download_folder(folder_name):
-    folder_path = os.path.join('downloads', folder_name)
-    return prepare_folder(folder_path)
-
-
-def prepare_folder(folder_path):
-    if not os.path.exists(folder_path):
-        Path(folder_path).mkdir(parents=True, exist_ok=True)
-
-    return folder_path
-
-
-def get_browser_ifdata():
-    browser = get_webdriver()
-
-    if browser is False:
-        return False
-
-    print('Acessa a página e aguarda o carregamento do combo de datas base')
-    url = 'https://www3.bcb.gov.br/ifdata/index.html'
-    browser.get(url)
-    countdown(25)
-
-    botao = browser.find_element_by_id('btnDataBase')
-    botao.click()
-
-    xpath = '//*[@id="ulDataBase"]/li[79]/a'
-    wait = WebDriverWait(browser, 30)
-    wait.until(EC.element_to_be_clickable((By.XPATH, xpath)))
-
-    botao.click()
-
-    return browser
-
-
-def get_webdriver():
-    options = webdriver.ChromeOptions()
-
-    options.add_argument('--headless')
-    options.add_argument('--no-sandbox')
-    options.add_argument('--disable-dev-shm-usage')
-
-    prefs = {"download.default_directory": os.path.join(
-        str(os.path.dirname(os.path.abspath(__file__))), 'downloads')}
-    options.add_experimental_option("prefs", prefs)
-
-    try:
-        browser = webdriver.Chrome(
-            options=options,
-            executable_path=list(
-                filter(lambda _file: 'chrome' in _file, glob.glob(
-                    os.path.join(os.path.dirname(os.path.abspath(__file__)), "*")))
-            )[0]
-        )
-    except Exception as expt:
-        _traceback = traceback.format_exc()
-        print(expt, "\n")
-        print(_traceback)
-        return False
-
-    return browser
-
-
-def countdown(_time):
-    while _time:
-        mins, secs = divmod(_time, 60)
-        timeformat = '{:02d}:{:02d}'.format(mins, secs)
-        print(timeformat, end='\r')
-        time.sleep(1)
-        _time -= 1
-
-
 def processa_relatorio(browser, id_tipo_if, download_folder_path):
     data_base = browser.execute_script(
         'return document.getElementById("btnDataBase").innerText')
@@ -224,14 +102,156 @@ def formata_nome_relatorio(rel):
     return rel
 
 
+def countdown(_time):
+    while _time:
+        mins, secs = divmod(_time, 60)
+        timeformat = '{:02d}:{:02d}'.format(mins, secs)
+        print(timeformat, end='\r')
+        time.sleep(1)
+        _time -= 1
+
+
+def get_webdriver():
+    options = webdriver.ChromeOptions()
+
+    options.add_argument('--headless')
+    options.add_argument('--no-sandbox')
+    options.add_argument('--disable-dev-shm-usage')
+
+    prefs = {"download.default_directory": os.path.join(
+        str(os.path.dirname(os.path.abspath(__file__))), 'downloads')}
+    options.add_experimental_option("prefs", prefs)
+
+    try:
+        browser = webdriver.Chrome(
+            options=options,
+            executable_path=list(
+                filter(lambda _file: 'chrome' in _file, glob.glob(
+                    os.path.join(os.path.dirname(os.path.abspath(__file__)), "*")))
+            )[0]
+        )
+    except Exception as expt:
+        _traceback = traceback.format_exc()
+        print(expt, "\n")
+        print(_traceback)
+        return False
+
+    return browser
+
+
+# monta os arquivos em um único arquivo
+def merge_arquivos(lista_paths, file_name):
+    print('='*80)
+    print('Consolidando arquivos - {}'.format(file_name))
+    print('='*80)
+
+    dfs = []
+    for file_path in sorted(lista_paths):
+        dataframe = pd.read_csv(file_path, sep=";")
+        dfs.append(dataframe)
+
+    dataframe = pd.concat(dfs, axis=0, ignore_index=True)
+
+    prepare_bases_folder()
+
+    dataframe.to_csv(os.path.join('bases', file_name), sep=";")
+    return True
+
+
+def prepare_download_folder(folder_name):
+    folder_path = os.path.join('downloads', folder_name)
+    return prepare_folder(folder_path)
+
+
 def prepare_bases_folder():
     folder_path = os.path.join('bases')
     return prepare_folder(folder_path)
 
 
+def prepare_folder(folder_path):
+    if not os.path.exists(folder_path):
+        Path(folder_path).mkdir(parents=True, exist_ok=True)
+
+    return folder_path
+
+
 def prepare_bases_import_folder():
     folder_path = os.path.join('bases_import')
     return prepare_folder(folder_path)
+
+
+def get_browser_ifdata():
+    browser = get_webdriver()
+
+    if browser is False:
+        return False
+
+    print('Acessa a página e aguarda o carregamento do combo de datas base')
+    url = 'https://www3.bcb.gov.br/ifdata/index.html'
+    browser.get(url)
+    countdown(25)
+
+    botao = browser.find_element_by_id('btnDataBase')
+    botao.click()
+
+    # última data disponível no combo, a partir que ela estiver visível
+    # quer dizer que a página carregou completamente
+    xpath = '//*[@id="ulDataBase"]/li[79]/a'
+    wait = WebDriverWait(browser, 30)
+    wait.until(EC.element_to_be_clickable((By.XPATH, xpath)))
+
+    botao.click()
+
+    return browser
+
+
+def main(folder_name, id_tipo_if, tipos_relatorios, datas_base, tipo_instituicao):
+    print('='*80)
+    print('Iniciando captura na página ifdata - {}'.format(tipo_instituicao))
+    print('='*80)
+
+    download_folder_path = prepare_download_folder(folder_name)
+    browser = get_browser_ifdata()
+
+    if browser is False:
+        return False
+
+    # baixa todas as bases de dados (de 0 a 78 em 08/02/2020)
+    browser.implicitly_wait(10)
+    for id_data_base in datas_base:
+        browser.execute_script('selectDataBase(' + str(id_data_base) + ')')
+        countdown(1)
+        data_base = browser.execute_script(
+            'return document.getElementById("btnDataBase").innerText')
+        print('Seleciona a data-base', data_base, "\n")
+
+        try:
+            browser.find_element_by_id('btnTipoInst').click()
+            elem = browser.find_element_by_link_text(tipo_instituicao)
+            elem.click()
+        except Exception:
+            print('Tipo de instituição não encontrada na data base {}, pulando...'.format(
+                data_base))
+            print("\n")
+            continue
+
+        # itens do relatório
+        for tipo_relatorio in tipos_relatorios:
+            try:
+                browser.find_element_by_id('btnRelatorio').click()
+                elem = browser.find_element_by_link_text(tipo_relatorio)
+                elem.click()
+                processa_relatorio(browser, id_tipo_if, download_folder_path)
+            except Exception:
+                print('Relatório: {}'.format(tipo_relatorio))
+                print(
+                    'Tipo de relatório não encontrado ou arquivo já baixado, pulando...')
+                print("\n")
+                continue
+
+    browser.close()
+    browser.quit()
+    return True
 
 
 def processa_import(nome_relatorio, a_excluir, a_renomear):
@@ -441,12 +461,7 @@ def merge_prud_files(prud_resumo_relatorios, prud_segmentacao_relatorios, prud_a
     )
 
 
-def merge_cong_files(
-    conglomerados_financeiros_resumo_relatorios,
-    conglomerados_financeiros_ativo_relatorios,
-    conglomerados_financeiros_passivo_relatorios,
-    conglomerados_financeiros_demonstracao_resultado_relatorios
-):
+def merge_cong_files(conglomerados_financeiros_resumo_relatorios, conglomerados_financeiros_ativo_relatorios, conglomerados_financeiros_passivo_relatorios, conglomerados_financeiros_demonstracao_resultado_relatorios):
     merge_arquivos(
         conglomerados_financeiros_resumo_relatorios,
         'congl_financeiros_resumo.csv'
@@ -466,24 +481,6 @@ def merge_cong_files(
         conglomerados_financeiros_demonstracao_resultado_relatorios,
         'congl_financeiros_demonstracao_resultado.csv'
     )
-
-
-def merge_arquivos(lista_paths, file_name):
-    print('='*80)
-    print('Consolidando arquivos - {}'.format(file_name))
-    print('='*80)
-
-    dfs = []
-    for file_path in sorted(lista_paths):
-        dataframe = pd.read_csv(file_path, sep=";")
-        dfs.append(dataframe)
-
-    dataframe = pd.concat(dfs, axis=0, ignore_index=True)
-
-    prepare_bases_folder()
-
-    dataframe.to_csv(os.path.join('bases', file_name), sep=";")
-    return True
 
 
 def get_cong(download_folder):
@@ -510,5 +507,4 @@ def get_cong(download_folder):
         if 'demonstracao_de_resultado' in file_name:
             conglomerados_financeiros_demonstracao_resultado_relatorios.append(
                 file_path)
-    return conglomerados_financeiros_resumo_relatorios, conglomerados_financeiros_ativo_relatorios,\
-        conglomerados_financeiros_passivo_relatorios, conglomerados_financeiros_demonstracao_resultado_relatorios
+    return conglomerados_financeiros_resumo_relatorios, conglomerados_financeiros_ativo_relatorios, conglomerados_financeiros_passivo_relatorios, conglomerados_financeiros_demonstracao_resultado_relatorios

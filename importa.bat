@@ -1,0 +1,3 @@
+python importa_conglomerados_prudenciais.py
+python importa_conglomerados_financeiros.py
+python importa_instituicoes_individuais.py

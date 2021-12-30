@@ -1,0 +1,4 @@
+python consolida_conglomerados_prudenciais.py
+python consolida_conglomerados_financeiros.py
+python consolida_instituicoes_individuais.py
+python consolida_instituicoes_operacoes_cambio.py
